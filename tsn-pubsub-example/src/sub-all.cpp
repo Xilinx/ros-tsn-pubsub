@@ -28,14 +28,14 @@
 #include "std_msgs/msg/string.hpp"
 using std::placeholders::_1;
 
-class XlnxSub : public rclcpp::Node
+class TsnSub : public rclcpp::Node
 {
   public:
-    XlnxSub()
-    : Node("xilinx_subscriber")
+    TsnSub()
+    : Node("tsn_subscriber")
     {
       subscription_ = this->create_subscription<std_msgs::msg::String>(
-      "topic", 10, std::bind(&XlnxSub::topic_callback, this, _1));
+      "example_topic", 10, std::bind(&TsnSub::topic_callback, this, _1));
     }
 
   private:
@@ -49,7 +49,7 @@ class XlnxSub : public rclcpp::Node
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<XlnxSub>());
+  rclcpp::spin(std::make_shared<TsnSub>());
   rclcpp::shutdown();
   return 0;
 }

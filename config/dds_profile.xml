@@ -6,7 +6,7 @@
             <transport_id>UdpVLANTransport</transport_id>
             <type>UDPv4</type>
             <interfaceWhiteList>
-                <address>111.222.0.1</address>
+                <address>111.222.0.10</address>
             </interfaceWhiteList>
         </transport_descriptor>
     </transport_descriptors>

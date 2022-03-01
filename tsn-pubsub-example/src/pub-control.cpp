@@ -35,15 +35,15 @@ using namespace std::chrono_literals;
 /* This example creates a subclass of Node and uses std::bind() to register a
 * member function as a callback from the timer. */
 
-class XlnxPub : public rclcpp::Node
+class TsnPub : public rclcpp::Node
 {
   public:
-    XlnxPub()
-    : Node("xilinx_publisher"), count_(0)
+    TsnPub()
+    : Node("tsn_publisher"), count_(0)
     {
-      publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
+      publisher_ = this->create_publisher<std_msgs::msg::String>("example_topic", 10);
       timer_ = this->create_wall_timer(500ms,
-		      std::bind(&XlnxPub::timer_callback, this));
+		      std::bind(&TsnPub::timer_callback, this));
     }
 
   private:
@@ -62,7 +62,7 @@ class XlnxPub : public rclcpp::Node
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<XlnxPub>());
+  rclcpp::spin(std::make_shared<TsnPub>());
   rclcpp::shutdown();
   return 0;
 }
