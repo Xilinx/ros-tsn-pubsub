@@ -29,3 +29,5 @@ cmake_minimum_required(VERSION 3.8)
 project(xlnx-pubsub)
 
 add_subdirectory(tsn-pubsub-example)
+
+install(FILES config/dds_profile.xml DESTINATION etc/${PROJECT_NAME} COMPONENT config)
