@@ -24,64 +24,69 @@
 #
 #******************************************************************************
 #
-# Configure network for tsn
+# Run Ros2 example application
 #
 
-#if [ "$EUID" -ne 0 ]
-#	then echo "Please run this script as root!"
-#	exit
-#fi
+function print_help() {
+	echo -e "Usage:"
+	echo -e "  $0 <exactly one Option>"
+	echo -e "Options:"
+	echo -e "  -h, --help       Display this help"
+	echo -e "  -t, --talker     Start Ros xln-pubsub talker"
+	echo -e "  -l, --listener   Start Ros xln-pubsub listener"
+}
 
-EP=${EP:-ep}
-ETH1=${ETH1:-eth1}
-ETH2=${ETH2:-eth2}
+ROS_PREFIX=${AMENT_PREFIX_PATH}
+PKG_NAME="xlnx-pubsub"
 
-VLAN_ID=${VLAN_ID:-20}
-
-MASTER=${MASTER:-0}
-
-MST_HW_ADDR_EP="00:0a:35:00:01:10"
-MST_HW_ADDR_ETH1="00:0a:35:00:01:1e"
-MST_HW_ADDR_ETH2="00:0a:35:00:01:1f"
-
-SLV_HW_ADDR_EP="00:0a:35:00:01:20"
-SLV_HW_ADDR_ETH1="00:0a:35:00:01:2e"
-SLV_HW_ADDR_ETH2="00:0a:35:00:01:2f"
-
-MAC_HIGH=0xF000a
-
-if [ "$MASTER" = "1" ]; then
-	HW_ADDR_EP=${MST_HW_ADDR_EP}
-	HW_ADDR_ETH1=${MST_HW_ADDR_ETH1}
-	HW_ADDR_ETH2=${MST_HW_ADDR_ETH2}
-	IP_ADDR=111.222.0.1
-	MAC_LOW=0x3500011e
-else
-	HW_ADDR_EP=$SLV_HW_ADDR_EP
-	HW_ADDR_ETH1=$SLV_HW_ADDR_ETH1
-	HW_ADDR_ETH2=$SLV_HW_ADDR_ETH2
-	MAC_LOW=0x3500012e
-	IP_ADDR=111.222.0.2
+if [ "$#" -ne 1 ];
+then
+	echo "Pass exactly 1 argument"
+	print_help
+	return
 fi
 
+if [ -z ${ROS_VERSION+x} ];
+then
+	echo "Setting up ROS env"
+	source /usr/bin/ros_setup.sh
+fi
 
-sudo ip link set $EP   down
-sudo ip link set $ETH1 down
-sudo ip link set $ETH2 down
+echo "ROS_DISTRO=$ROS_DISTRO"
+echo "ROS_VERSION=$ROS_VERSION"
 
-sudo ip link set $EP   address $HW_ADDR_EP
-sudo ip link set $ETH1 address $HW_ADDR_ETH1
-sudo ip link set $ETH2 address $HW_ADDR_ETH2
+case $1 in
+	-h | --help )
+		print_help
+		return 0
+		;;
+	-t | --talker )
+		application=talker
+		;;
+	-l | --listener )
+		application=listener
+		;;
+	* )
+		echo "Invalid argument $1"
+		print_help
+		return 1;
+		;;
+esac
 
-sudo switch_prog pst -s swp0 --state 4
-sudo switch_prog pst -s swp1 --state 4
-sudo switch_prog pst -s swp2 --state 4
+profile=${ROS_PREFIX}/etc/${PKG_NAME}/dds_${application}_profile.xml
 
-sudo devmem 0x80078010 32 $MAC_HIGH
-sudo devmem 0x8007800c 32 $MAC_LOW
+white_list=$(awk -F '[<>]' '/address/{print $3}' $profile)
 
-sudo ip addr add ${IP_ADDR}/24 broadcast + dev $EP
+if ! $(ip addr show | grep -q ${white_list}); then
+	echo "Whitelist IP $white_list not configured"
+	echo "Please run net_setup.sh first"
+	return 1
+fi
 
-sudo ip link set $EP   up
-sudo ip link set $ETH1 up
-sudo ip link set $ETH2 up
+export FASTRTPS_DEFAULT_PROFILES_FILE=$profile
+
+echo "Ros2 $application is now running. do CTRL-C to exit"
+sleep 1
+
+ros2 run ${PKG_NAME} $application
+
