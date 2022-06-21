@@ -48,4 +48,9 @@ install(TARGETS
 	listener
 	DESTINATION lib/${PROJECT_NAME})
 
+install(FILES ../config/dds_talker_profile.xml DESTINATION etc/${PROJECT_NAME} COMPONENT config)
+install(FILES ../config/dds_listener_profile.xml DESTINATION etc/${PROJECT_NAME} COMPONENT config)
+
+install(FILES ../scripts/start_ros_test.sh DESTINATION /opt/xilinx/ros-tsn-example/bin/ )
+
 ament_package()
