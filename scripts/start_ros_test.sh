@@ -48,8 +48,10 @@ fi
 
 if [ -z ${ROS_VERSION+x} ];
 then
-	echo "Setting up ROS env"
-	source /usr/bin/ros_setup.sh
+	echo "ROS envirnoment not set. Please source <ros installation>/bin/setup.sh"
+	echo "typically: "
+	echo "		source /opt/ros/humble/setup.bash"
+	return
 fi
 
 echo "ROS_DISTRO=$ROS_DISTRO"
