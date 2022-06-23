@@ -15,7 +15,7 @@ pcp 4 (which is scheduled traffic in Xilinx TSN by default).
 - Install on target using:
 ```
 # change version number as per your download
-sudo apt install ~/Downloads/ros-humble-xlnx-pubsub_0.0.1-0jammy_arm64.deb
+sudo apt install ~/Downloads/ros-humble-xlnx-pubsub_0.1.0-0jammy_arm64.deb
 ```
 
 ## Run Instructions
