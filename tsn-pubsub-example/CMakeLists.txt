@@ -32,6 +32,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+set(SCRIPT_PREFIX "/opt/xilinx/ros-tsn-example" CACHE PATH "Script Installation prefix")
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -51,6 +53,8 @@ install(TARGETS
 install(FILES ../config/dds_talker_profile.xml DESTINATION etc/${PROJECT_NAME} COMPONENT config)
 install(FILES ../config/dds_listener_profile.xml DESTINATION etc/${PROJECT_NAME} COMPONENT config)
 
-install(FILES ../scripts/start_ros_test.sh DESTINATION /opt/xilinx/ros-tsn-example/bin/ )
+message("Script installation path: ${SCRIPT_PREFIX}/bin")
+
+install(FILES ../scripts/start_ros_test.sh DESTINATION ${SCRIPT_PREFIX}/bin/ )
 
 ament_package()
