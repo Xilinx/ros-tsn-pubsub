@@ -61,6 +61,15 @@ Architecture
    Hardware Architecture - Platform <docs/hw_arch_platform>
 
 
+*******************************
+Repository
+*******************************
+
+.. toctree::
+  :maxdepth: 1
+  
+  Software Repository <https://github.com/Xilinx/ros-tsn-pubsub>
+
 
 Xilinx Support
 ====================================
