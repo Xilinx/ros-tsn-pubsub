@@ -16,7 +16,7 @@
 
 * Optional feature to Enable Frame Packet preemption
 
-* Enablement to use another machine as a CNC to set QBV schedule and FDB Cam entries onto the 2 KR260 Nodes
+* Enablement to use another machine as a CNC to set QBV schedule and FDB Cam entries onto the 2 KR260/KD240 Nodes
 
 ## Introduction
 
@@ -26,17 +26,17 @@ This document shows how to set up the board and run the TSN ROS application.
 
 ### Hardware Requirements
 
-* KR260 Robotics Starter Kit
+* KR260 Robotics Starter Kit or KD240 Drive Starter Kit
 
-* KR260 Power Supply & Adapter (Included with KR260 Robotics Starter Kit)
+* KR260 Power Supply & Adapter or KD240 Power Supply & Adapter
 
-* Cat 5e Ethernet Cable (Included with KR260 Robotics Starter Kit)
+* Cat 5e Ethernet Cable
 
-* USB-A to micro-B Cable (Included with KR260 Robotics Starter Kit)
+* USB-A to micro-B Cable
 
-* 16GB MicroSD Cards (Included with KR260 Robotics Starter Kit)
+* 16GB MicroSD Cards
 
-* CNC - Optional (KV260/KR260 or Linux Running Standalone machine)
+* CNC - Optional (KV260/KR260/KD240 or Linux Running Standalone machine)
 
 * Ethernet Switch - Optional
 
@@ -58,13 +58,17 @@ This document shows how to set up the board and run the TSN ROS application.
 
 1. Testing was performed with:
 
-    * [x07-20230302-63 Ubuntu 22.04 Linux Image](https://people.canonical.com/~platform/images/xilinx/kria-ubuntu-22.04/iot-limerick-kria-classic-desktop-2204-x07-20230302-63.img.xz?_ga=2.229092828.1548870927.1684017553-434607567.1663082500)
+    * [KR260 Ubuntu 22.04 Linux Image](https://people.canonical.com/~platform/images/xilinx/kria-ubuntu-22.04/iot-limerick-kria-classic-desktop-2204-x07-20230302-63.img.xz?_ga=2.229092828.1548870927.1684017553-434607567.1663082500)
+
+    * [KD240 Ubuntu 22.04 Linux Image](https://oem-share.canonical.com/partners/limerick/share/kria24-22.04/classic-22.04-kd02-2/iot-limerick-kria-classic-server-2204-classic-22.04-kd02-2-20230712-97.img.xz)
 
     * [v2022.1-09152304_update3 Boot Firmware](https://www.xilinx.com/member/forms/download/xef.html?filename=BOOT_xilinx-k26-starterkit-v2022.1-09152304_update3.BIN)
 
-    ***Note:*** The minimum Linux kernel version required is `5.15.0.1022.26`.
+    ***Note:*** The minimum Linux kernel version required is `5.15.0.1022.9000`.
 
-2. Go through  [Booting Kria Starter Kit Linux](../../kria_starterkit_linux_boot.md) to complete the minimum setup required to boot Linux before continuing with instructions in this page.
+2. Go through the minimum setup required to boot Linux before continuing with instructions in this page:
+    * [Kria Starter Kit Linux Boot on KR260](https://xilinx.github.io/kria-apps-docs/kr260/build/html/docs/kria_starterkit_linux_boot.html)
+    * [Kria Starter Kit Linux Boot on KD240](https://xilinx.github.io/kria-apps-docs/kd240/linux_boot.html)
 
 3. Get the latest TSN-ROS application and firmware package:
 
@@ -88,7 +92,8 @@ This document shows how to set up the board and run the TSN ROS application.
         * Install firmware binaries and restart dfx-mgr.
 
         ```bash
-        sudo apt install xlnx-firmware-kr260-tsn-rs485pmod
+        sudo apt install xlnx-firmware-kr260-tsn-rs485pmod           //KR260
+        sudo apt install xlnx-firmware-kd240-motor-ctrl-qei          //KD240
         ```
 
         * Install dependencies and apps.
@@ -155,7 +160,8 @@ This document shows how to set up the board and run the TSN ROS application.
 
        ```bash
         $ sudo xmutil unloadapp
-        $ sudo xmutil loadapp kr260-tsn-rs485pmod
+        $ sudo xmutil loadapp kr260-tsn-rs485pmod            //KR260
+        $ sudo xmutil loadapp kd240-motor-ctrl-qei           //KD240
         ```
 
 
@@ -165,43 +171,54 @@ The TSN example applications demonstrate Network Time Synchronization and Networ
 
 Two different configurations are shown below for deterministic communication. After completing the initial setup from above, you can navigate to the following subsections to evaluate the desired features:
 
-* Master - Slave deterministic communication with 2 KR260 boards : Network Configuration 1
+* Master - Slave deterministic communication with 2 KR260/KD240 boards : Network Configuration 1
 * KRS based DDS implementation on ROS 2 pub/sub definition : Network Configuration 1
-* CNC(KV260/KR260 or Linux Running Machine) and Master - Slave with 2 KR260 boards : Network Configuration 2
+* CNC(KV260/KR260/KD240 or Linux Running Machine) and Master - Slave with 2 KR260/KD240 boards : Network Configuration 2
 * Master - Slave deterministic communication with I210 card 	 : Network Configuration 3
 * RS485 Temperature/humidity sensor demo 						 : Communicating using RS485
 
-### Network Configuration 1 : Two KR260 boards
+**NOTE**: RS485 Temperature/humidity sensor demo is not applicable to KD240
 
-This configuration requires two KR260 units; TSN subsystem is connected to form a network where one of the units is configured to be master and the other one as slave. The following figure represents this configuration:
+### Network Configuration 1 : Two KR260/KD240 boards
+
+This configuration requires two KR260/KD240 units; TSN subsystem is connected to form a network where one of the units is configured to be master and the other one as slave. The following figure represents this configuration:
 
 ![osc](media/2board-osc.png)
 
 #### Two KR260 boards: Board setup
 
-* Connect Ethernet cable from PL ETH1 of Board1 (J10 top) to PL ETH1 of  Board2 (J10 top).
+* Connect Ethernet cable from PL ETH1 of Board1 (J10 top of KR260)/(J25B top of KD240) to PL ETH1 of  Board2.
 * Connect JTAG/UART ports of both boards to your PC.
-* Connect Digilent TPH2 Pmod into the PMOD2 connector on the KR260 board.
+* Connect Digilent TPH2 Pmod into the PMOD2 connector on the KR260/KD240 board.
 * The Analog Discovery 2  or Oscilloscope can be connected to Board1 and Board2 for observing the PTP clock synchronization, Qbv scheduling, and measuring latency.
 * Power on both the boards with the prebuilt wic image in the sd_card that was prepared in the prerequisite section.
 
+ KR260-KR260 Setup
+
 ![2board](media/2board-live.png)
+
+
+KD240-KD240 Setup
+  
+![2board-kd240](media/KD240-KD240.jpg)
 
 #### Run TSN-ROS Out of Box Applications
 
-* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) using `xmutil loadapp kr260-tsn-rs485pmod` before testing example application. If the firmware is already loaded, ignore this step and proceed.
+* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
+    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
+    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
 
 * Setup Ethernet ports by running the following commands on the serial terminal. This sets the MAC/IP/VLAN on the EP and ETH ports of the TSN switch IP.
 
-    * _KR260 Board1 interface setup_
+    * _KR260/KD240 Board1 interface setup_
 
         `source /usr/bin/net_setup.sh -b1`
 
-    * _KR260 Board2 interface setup_
+    * _KR260/KD240 Board2 interface setup_
 
         `source /usr/bin/net_setup.sh -b2`
 
-	* _Setup ros env on both KR260 Board 1 & Board2_
+	* _Setup ros env on both KR260/KD240 Board 1 & Board2_
 
 		`source /opt/ros/humble/setup.sh`
 
@@ -374,36 +391,40 @@ Wireshark trace shows a 70% Scheduled traffic 30 % Best Effort traffic distribut
     ![wsn](media/i210-wsn2.png)
 
 
-### Network Configuration 2 : Network Manager(CNC) and Two KR260 Boards
+### Network Configuration 2 : Network Manager(CNC) and Two KR260/KD240 Boards
 
-This configuration requires either two KR260 units and one KV260/KR260 unit(CNC) or two KR260 units and one Linux Running Machine(CNC). The following images represent these configurations:
+This configuration requires either two KR260/KD240 units and one KV260/KR260/KD240 unit(CNC) or two KR260/KD240 units and one Linux Running Machine(CNC). The following images represent these configurations:
 
-#### Two KR260 and one KV260/KR260(CNC):
+#### Two KR260/KD240 and one KV260/KR260/KD240(CNC):
 
 ![NM_Setup_1](media/NM_Setup_1.JPG)
 
-#### Two KR260 and one Linux Running Machine(CNC):
+#### Two KR260/KD240 and one Linux Running Machine(CNC):
 
 ![NM_Setup_2](media/NM_Setup_2.JPG)
 
+**NOTE**: For KD240 J24 is PS Eth, J25B top is PL Eth
+
 #### Run TSN-ROS Out of Box Applications
 
-* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from an initial setup) using `xmutil loadapp kr260-tsn-rs485pmod` before testing the example application. If the firmware is already loaded, ignore this step and proceed.
+* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
+    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
+    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
 
 * Setup Ethernet ports by running the following commands on the serial terminal. This sets the MAC/IP/VLAN on the EP and ETH ports of the TSN switch IP.
 
-    * _KR260 Board1 interface setup_
+    * _KR260/KD240 Board1 interface setup_
 
         `source /usr/bin/net_setup.sh -b1`
 
-    * _KR260 Board2 interface setup_
+    * _KR260/KD240 Board2 interface setup_
 
         `source /usr/bin/net_setup.sh -b2`
 
 
 ##### Run Instructions
 
-1. Run parser on the both KR260 units.
+1. Run parser on the both KR260/KD240 units.
 
     * Setup one board as Master and one as Slave. Run the following:
      ```bash
@@ -413,7 +434,7 @@ This configuration requires either two KR260 units and one KV260/KR260 unit(CNC)
 
 2. Setup Network Manager
 
-    * For CNC as KR260/KV260, install xlnx-tsn-utils package.
+    * For CNC as KR260/KV260/KD240, install xlnx-tsn-utils package.
     ```bash
         sudo add-apt-repository ppa:xilinx-apps
         sudo apt update
@@ -682,6 +703,11 @@ This configuration requires either two KR260 units and one KV260/KR260 unit(CNC)
 
     * Move the qbv.pcap file from the SD card to the host PC to analyze the packet distribution within Wireshark.
 
+    * Kill talker on Board1/Master
+    ```
+        sudo killall tsn_talker
+    ```
+
 4. Analyze the packet distribution on wireshark
 
     Wireshark trace shows a 70% Scheduled traffic 30 % Best Effort traffic distribution
@@ -856,7 +882,8 @@ This configuration requires either two KR260 units and one KV260/KR260 unit(CNC)
 
 1. Check the current status.
      ```
-        ethtool --include-statistics --show-mm eth2
+        ethtool --include-statistics --show-mm eth2    //KR260
+        ethtool --include-statistics --show-mm eth1    //KD240
      ```
       ***Note:*** Verify pMAC enabled: on. This means preemption is available. TX Enable and Active will be off at this point as boards are not communicating yet.
 
@@ -866,35 +893,43 @@ This configuration requires either two KR260 units and one KV260/KR260 unit(CNC)
      ```
 3. Enable transmit capabilities
      ```
+        # KR260 commands
         sudo lldptool -i eth2 set-lldp adminStatus=rxtx
         sudo lldptool -i eth2 set-tlv -V addEthCaps enableTx=yes
+
+        # KD240 commands
+        sudo lldptool -i eth1 set-lldp adminStatus=rxtx
+        sudo lldptool -i eth1 set-tlv -V addEthCaps enableTx=yes
      ```
       ***Note:*** Now TX Enable and Active should be ON automatically on both sides.
 4. Check status
      ```
-        ethtool --include-statistics --show-mm eth2
+        ethtool --include-statistics --show-mm eth2      //KR260
+        ethtool --include-statistics --show-mm eth1      //KD240
      ```
       ***Note:*** Notice TX Enable and TX Active are "on" now.
       Once preemption is enabled, it remains enabled on subsequent reboot as the configuration is stored in lldpad.conf. Delete `/var/lib/lldpad/lldpad.conf` to reset the configuration.
 
 
-### Network Configuration 3 : KR260 and PC Workstation
+### Network Configuration 3 : KR260/KD240 and PC Workstation
 
-A single KR260 board communicating with a PC workstation capable of TSN networking.  The PC workstation is using an I210 Ethernet Controller interface card to demonstrate functionality and features of TSN.
+A single KR260/KD240 board communicating with a PC workstation capable of TSN networking.  The PC workstation is using an I210 Ethernet Controller interface card to demonstrate functionality and features of TSN.
 
-#### KR260 and PC Workstation: Board Setup
+#### KR260/KD240 and PC Workstation: Board Setup
 
 * Insert the microSD card containing the boot image into the microSD card slot (J11) on the Starter Kit.
 * Connect JTAG/UART port (J4) of the KR260 carrier board to the development PC.
 * Connect the TPH2 Pmod to the PMOD2 expansion connector (J18) of the KR260 carrier board.
-* Connect Ethernet cable from PL ETH1 of KR260 Carrier Board (J10 top port) to Intel I210 NIC Ethernet port of the Linux host machine.
-* Connect Power Supply to the 12V PWR DC barrel jack (J12) on the KR260 carrier board.
+* Connect Ethernet cable from PL ETH1 (J10 top for KR260)/(J25B top for KD240) Carrier Board  to Intel I210 NIC Ethernet port of the Linux host machine.
+* Connect Power Supply to the 12V PWR DC barrel jack (J12) on the KR260/KD240 carrier board.
 
     ![i210](media/i210-setup.png)
 
-* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) using `xmutil loadapp kr260-tsn-rs485pmod` before testing the example application. If the firmware is already loaded, ignore this step and proceed.
+* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
+    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
+    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
 
-* Setup Ethernet port on the target KR260 board by running the following commands within the USB-UART connected serial terminal, this sets the MAC/IP/VLAN on the EP and ETH port of the TSN switch IP.
+* Setup Ethernet port on the target KR260/KD240 board by running the following commands within the USB-UART connected serial terminal, this sets the MAC/IP/VLAN on the EP and ETH port of the TSN switch IP.
 
     `$ source /usr/bin/net_setup.sh -b2 `
 
@@ -908,9 +943,9 @@ A single KR260 board communicating with a PC workstation capable of TSN networki
 
     `$ sudo apt install linuxptp`
 
-#### Network Time Synchronization Workstation-KR260 (PTP Demo)
+#### Network Time Synchronization Workstation-KR260/KD240 (PTP Demo)
 
-In this demo, KR260 sets its clock as slave and the Linux host workstation serves as the clock master. The KR260 clock syncs with the Linux host workstation clock after a brief synchronization period.
+In this demo, KR260/KD240 sets its clock as slave and the Linux host workstation serves as the clock master. The KR260/KD240 clock syncs with the Linux host workstation clock after a brief synchronization period.
 
 Using a text editor on the Linux TSN host workstation, create a new ptp4l configuration file with the following settings needed to launch ptp4l as the network clock master.
 
@@ -942,14 +977,14 @@ Using a text editor on the Linux TSN host workstation, create a new ptp4l config
 
 > ***Note:*** In cases where there is more than one PTP device available, specify which one is to be used with the -p argument as shown in the following example usage:
 
-* _Start ptp on KR260 in slave clock mode_
+* _Start ptp on KR260/KD240 in slave clock mode_
     `$ source /usr/bin/start_ptp.sh -s `
 
 > ***Note:*** Ensure to run the ptp master before starting ptp slave as slave fails to sync when the grandmaster clock is not set. The sync takes about 30 seconds to complete.
 
 **Observe Results**
 
-* The file ptplog contains the saved ptp4l output to the file system on KR260. The rms value starts out high and trend downward to a single-digit value showing that the clocks are now in sync.
+* The file ptplog contains the saved ptp4l output to the file system on KR260/KD240. The rms value starts out high and trend downward to a single-digit value showing that the clocks are now in sync.
 
     ![i210](media/i210-ptp.png)
 
@@ -961,7 +996,7 @@ Using a text editor on the Linux TSN host workstation, create a new ptp4l config
 
 This demo allots a time slot for Scheduled Traffic (ST) and Best Effort (BE) traffic and it can be visualized on an oscilloscope.  For a cycle time period of 1ms, ST traffic is sent for 700us and BE traffic for 300us.  Wireshark on the Linux host workstation listens for packets.  On the KR260 board, the application sets up time slots for the traffic classes.  Packets are generated in continuous mode for both traffic types.  Wireshark monitors the incoming packets for scheduled and best-effort traffic exposed by the TSN IP.
 
-An oscilloscope or Analog Discovery 2 device can also be used to monitor Tlast Tx ST (P7) and Tlast Tx EP (P9) on KR260 board to view the distribution.
+An oscilloscope or Analog Discovery 2 device can also be used to monitor Tlast Tx ST (P7) and Tlast Tx EP (P9) on KR260/KD240 board to view the distribution.
 Oscilloscope Setup (optional)
 
 * Connect P7 on the Test Pmod of KR260 to Channel1 of the oscilloscope - Tlast Tx ST
@@ -1009,6 +1044,8 @@ Oscilloscope Setup (optional)
 ### Communication using RS485
 
 The K26 SOM has the capability to perform as an advanced and highly integrated gateway for legacy industrial networking protocols (those using RS485/Modbus) to more modern industrial networking infrastructure (such as TSN) and this application serves as an example of how to interface to a remote temperature sensor for capturing data.  This is analogous to integrating in legacy, but still functional, capital equipment to reduce total replacement costs within factory retrofits and technology upgrades.
+
+**NOTE**: This test is not applicable for KD240 via PMOD-RS485
 
 #### RS485: Board Setup
 
