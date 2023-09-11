@@ -1049,6 +1049,7 @@ The K26 SOM has the capability to perform as an advanced and highly integrated g
 
 #### RS485: Board Setup
 
+KR260:
 * Connect the Pmod RS485 to the PMOD1 expansion connector (J2) of the KR260 carrier board. Be sure to connect this to the bottom row of pins (ones labeled 2,4,6,8,10, and 12) since the module is a 1x6 header connecting to a 2x6 connector on KR260.
 
 ![pmod](media/pmod-temp.png)
@@ -1063,18 +1064,27 @@ The K26 SOM has the capability to perform as an advanced and highly integrated g
 
 * Connect Power Supply to the 12V PWR DC barrel jack (J12) on the KR260 carrier board.
 
+KD240:
+* Connect the RS485 Temperature and Humidity sensor as below on the J22 Connector on the KD240. Obtain a separate 12V power supply to connect the two loose jumpers as shown in the following image, one to GND(black wire in image) and the other to 12V Supply (white wire in image).
+
+![kd240-rs485](media/KD240-RS485-Image.jpg)
+
+* Connect the Temperature and humidity sensor to the J22 euromag connector as shown below
+
+![kd240-rs485-image](media/KD240-RS485-Connections.JPG)
+
 ### RS485 Temperature/Humidity Sensor Demo
 
-In this demo, the pmod-test application probes the temperature sensor connected to Pmod RS485 and displays the captured values on the serial terminal.
+In this demo, the pmod-test application probes the temperature sensor connected and displays the captured values on the serial terminal.
 
-* Ensure to load the TSN accelerator/firmware (refer to step-7 'Dynamically load the application package' from Initial setup) using `xmutil loadapp kr260-tsn-rs485pmod` before testing example application. If the firmware is already loaded, ignore this step and proceed.
+* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
+    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
+    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
 * Probe sensor via RS485 interface.
 
-Execute binary
-
-```bash
-pmod-rs485-test
-```
+* Execute binary:
+    * KR260 command - `pmod-rs485-test`
+    * KD240 command - `pmod-rs485-test /dev/ttyPS0`
 
 **Observe Results**
 
