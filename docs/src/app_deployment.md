@@ -26,9 +26,9 @@ This document shows how to set up the board and run the TSN ROS application.
 
 ### Hardware Requirements
 
-* KR260 Robotics Starter Kit or KD240 Drive Starter Kit
+* Two Kria SOM starter kits which can be two KR260 Robotics Starter Kit or two KD240 Drive Starter Kits, or one KR260 and one KD240
 
-* KR260 Power Supply & Adapter or KD240 Power Supply & Adapter
+* Two KR260 Power Supply & Adapter or two KD240 Power Supply & Adapter
 
 * Cat 5e Ethernet Cable
 
@@ -54,17 +54,36 @@ This document shows how to set up the board and run the TSN ROS application.
 
 * Wireshark tools installed on host machine (Ubuntu 20.04 Linux used for documentation)
 
+**NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well
+
 ### Initial Setup
 
 1. Testing was performed with:
 
-    * [KR260 Ubuntu 22.04 Linux Image](https://people.canonical.com/~platform/images/xilinx/kria-ubuntu-22.04/iot-limerick-kria-classic-desktop-2204-x07-20230302-63.img.xz?_ga=2.229092828.1548870927.1684017553-434607567.1663082500)
+    * KD240 platform:
 
-    * [KD240 Ubuntu 22.04 Linux Image](https://oem-share.canonical.com/partners/limerick/share/kria24-22.04/classic-22.04-kd02-2/iot-limerick-kria-classic-server-2204-classic-22.04-kd02-2-20230712-97.img.xz)
+    | Platform     | Version                         |
+    | :----------: | :-----------------------------: |
+    | Linux Kernel | 5.15.0-9002                     |
+    | Boot Fiwmare | BOOT-k24-smk-20230912123632.bin |
 
-    * [v2022.1-09152304_update3 Boot Firmware](https://www.xilinx.com/member/forms/download/xef.html?filename=BOOT_xilinx-k26-starterkit-v2022.1-09152304_update3.BIN)
+    * KR260 platform:
 
-    ***Note:*** The minimum Linux kernel version required is `5.15.0.1022.9000`.
+    | Platform      | Version                                                 |
+    | :-----------: | :-----------------------------------------------------: |
+    | Linux Kernel  | 5.15.0-1023                                             |
+    | Boot Firmware | BOOT_xilinx-k26-starterkit-v2022.1-09152304_update3.BIN |
+
+    * Application packages:
+
+    | Application                    | Version                      |
+    | :----------------------------: | :--------------------------: |
+    | xlnx-kria-apps-bitstreams      | 0.10-0xlnx1                  |
+    | xlnx-tsn-utils                 | 0.3-0xlnx1                   |
+    | xlnx-app-kr260-tsn-examples    | 0.2-0xlnx2                   |
+    | xlnx-app-kr260-pmod-rs485-test | 0.1-0xlnx1                   |
+    | ethtool                        | 1:5.16+tsn-qbr-0ubuntu1xlnx1 |
+    | lldpad                         | 1.1+tsn-qbr-0ubuntu1xlnx2    |
 
 2. Go through the minimum setup required to boot Linux before continuing with instructions in this page:
     * [Kria Starter Kit Linux Boot on KR260](https://xilinx.github.io/kria-apps-docs/kr260/build/html/docs/kria_starterkit_linux_boot.html)
@@ -86,22 +105,24 @@ This document shows how to set up the board and run the TSN ROS application.
         xlnx-app-kr260-pmod-rs485-test/jammy 0.1-0xlnx1 arm64  demo application for Xilinx boards - kr260 pmod-rs485-test application
         xlnx-app-kr260-tsn-examples/jammy 0.1-0xlnx1 arm64
        ```
+       **NOTE**: There are no dedicated packages for KD240, the same TSN packages can be used as
+        for KR260
 
     * Install the AMD demo application packages and dependencies for ROS-TSN.
 
         * Install firmware binaries and restart dfx-mgr.
 
         ```bash
-        sudo apt install xlnx-firmware-kr260-tsn-rs485pmod           //KR260
-        sudo apt install xlnx-firmware-kd240-motor-ctrl-qei          //KD240
+        sudo apt install -y xlnx-firmware-kr260-tsn-rs485pmod          //KR260
+        sudo apt install -y xlnx-firmware-kd240-motor-ctrl-qei         //KD240
         ```
 
         * Install dependencies and apps.
 
         ```bash
         # Install TSN applications below
-        sudo apt install xlnx-app-kr260-pmod-rs485-test
-        sudo apt install xlnx-app-kr260-tsn-examples
+        sudo apt install -y xlnx-app-kr260-pmod-rs485-test
+        sudo apt install -y xlnx-app-kr260-tsn-examples
         ```
 
        Confirm with "Y" when prompted to install new or updated packages.
@@ -126,7 +147,7 @@ This document shows how to set up the board and run the TSN ROS application.
         echo "deb [arch=arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2-testing/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
         sudo apt update
         sudo apt upgrade
-        sudo apt install ros-humble-ros-base
+        sudo apt install -y ros-humble-ros-base
         ```
 
         Confirm with "Y" when prompted to install new or updated packages.
@@ -136,7 +157,7 @@ This document shows how to set up the board and run the TSN ROS application.
        ```bash
         mkdir -p ~/Downloads
         wget https://github.com/Xilinx/ros-tsn-pubsub/releases/download/v0.1/ros-humble-xlnx-pubsub_0.1.0-0jammy_arm64.deb -P ~/Downloads/
-        sudo apt install ~/Downloads/ros-humble-xlnx-pubsub_0.1.0-0jammy_arm64.deb
+        sudo apt install -y ~/Downloads/ros-humble-xlnx-pubsub_0.1.0-0jammy_arm64.deb
        ```
 
     * Install network-manager related packages.
@@ -148,10 +169,10 @@ This document shows how to set up the board and run the TSN ROS application.
 
     The firmware consists of bitstream, device tree overlay (dtbo) file. The firmware is loaded dynamically on user request once Linux is fully booted. The xmutil utility can be used for that purpose.
 
-    * Show the list and status of available acceleration platforms :
+    * Show the list and status of available acceleration firmware:
 
        ```bash
-        $ sudo xmutil listapps
+        sudo xmutil listapps
         ```
 
     * Switch to a different platform for different Application:
@@ -159,9 +180,18 @@ This document shows how to set up the board and run the TSN ROS application.
        When there is already another accelerator/firmware being activated apart from xlnx-app-kr260-pmod-rs485-test, unload it first and then switch to xlnx-app-kr260-pmod-rs485-test.
 
        ```bash
-        $ sudo xmutil unloadapp
-        $ sudo xmutil loadapp kr260-tsn-rs485pmod            //KR260
-        $ sudo xmutil loadapp kd240-motor-ctrl-qei           //KD240
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kr260-tsn-rs485pmod            //KR260
+        sudo xmutil loadapp kd240-motor-ctrl-qei           //KD240
+        ```
+        **NOTE**: Though KD240 firmware is titled motor-ctrl-qei, it has the firmware for TSN.
+        KD240 Firmware load `xmutil loadapp kd240-motor-ctrl-qei` will print following messages
+        These are safe to ignore.
+        ```bash
+        [  112.802574] net eth1: Speed other than 10, 100
+        [  112.807227] net eth1: or 1Gbps is not supported
+        [  112.866305] net eth2: Speed other than 10, 100
+        [  112.871168] net eth2: or 1Gbps is not supported
         ```
         **NOTE**: KD240 Firmware load `xmutil loadapp kd240-motor-ctrl-qei` will print following messages. These are safe to ignore.
         ```bash
@@ -171,6 +201,7 @@ This document shows how to set up the board and run the TSN ROS application.
         [  112.871168] net eth2: or 1Gbps is not supported
         ```
 
+    * After installing the FW, execute xmutil listapps to verify that it is captured under the listapps function, and to have dfx-mgrd, re-scan and register all accelerators in the firmware directory tree
 
 ## Run Out Of Box Applications
 
@@ -188,9 +219,19 @@ Two different configurations are shown below for deterministic communication. Af
 
 ### Network Configuration 1 : Two KR260/KD240 boards
 
+**NOTE**: This turotial can be run with one KD240 and one KR260 configuration as well.
+
 This configuration requires two KR260/KD240 units; TSN subsystem is connected to form a network where one of the units is configured to be master and the other one as slave. The following figure represents this configuration:
 
+KR260-KR260 Setup:
+
 ![osc](media/2board-osc.png)
+
+KD240-KD240 Setup:
+
+![setup](media/2board-osc-kd240.JPG)
+
+**NOTE**: For KD240 J24 is PS Eth, J25B top is PL Eth. For KR260 J10D is PS Eth, J10B top is PL Eth
 
 #### Two KR260 boards: Board setup
 
@@ -212,8 +253,16 @@ KD240-KD240 Setup
 #### Run TSN-ROS Out of Box Applications
 
 * Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
-    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
-    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
+    * KR260 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kr260-tsn-rs485pmod
+    ```
+    * KD240 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kd240-motor-ctrl-qei
+    ```
 
 * Setup Ethernet ports by running the following commands on the serial terminal. This sets the MAC/IP/VLAN on the EP and ETH ports of the TSN switch IP.
 
@@ -244,11 +293,11 @@ Oscilloscope or Analog Discovery 2 Setup (optional)
 
     * _Start ptp on Board1 in master mode_
 
-        `$ source /usr/bin/start_ptp.sh -m`
+        `source /usr/bin/start_ptp.sh -m`
 
     * _Start ptp on Board2 in slave mode_
 
-        `$ source /usr/bin/start_ptp.sh -s`
+        `source /usr/bin/start_ptp.sh -s`
 
     > ***Note:***  Ensure to run PTP master before starting PTP slave as slave fails to sync when the grandmaster clock is not set. The sync takes about 30 seconds to complete.
 
@@ -272,10 +321,10 @@ Oscilloscope or Analog Discovery 2 Setup (optional)
 
 * Start the Subscriber (listener) first on Board2 so that it is ready to receive messages from the Publisher once it has begun sending messages.
 
-     `$ source /opt/xilinx/ros-tsn-example/bin/start_ros_test.sh -l`
+     `source /opt/xilinx/ros-tsn-example/bin/start_ros_test.sh -l`
 * Start Publisher (talker) next on Board1 to begin sending messages to boards that are Subscribed to the topic.
 
-    `$ source  /opt/xilinx/ros-tsn-example/bin/start_ros_test.sh -t`
+    `source  /opt/xilinx/ros-tsn-example/bin/start_ros_test.sh -t`
 
 **Observe Results**
 
@@ -304,15 +353,15 @@ To measure latency, an oscilloscope or Analog Discovery 2 device is required. Th
 
     * _Start listener on Board2_
 
-        `$ source /opt/xilinx/tsn-examples/bin/start_latency_test.sh -l`
+        `source /opt/xilinx/tsn-examples/bin/start_latency_test.sh -l`
 
     * _Start talker on Board1 with best effort traffic class_
 
-        `$ source /opt/xilinx/tsn-examples/bin/start_latency_test.sh -b`
+        `source /opt/xilinx/tsn-examples/bin/start_latency_test.sh -b`
 
     * _Start talker on Board1 with scheduled traffic class_
 
-        `$ source /opt/xilinx/tsn-examples/bin/start_latency_test.sh -s`
+        `source /opt/xilinx/tsn-examples/bin/start_latency_test.sh -s`
 
     * Press Enter key on Board2 to exit the Listener mode.
 
@@ -340,10 +389,10 @@ This demo allots a time slot for scheduled traffic and best effort and it can be
 
 * _Start Receive on Board2_
 
-    `$ source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -rx`
+    `source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -rx`
 * _Start Transmit on Board1_
 
-    `$ source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -tx`
+    `source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -tx`
 
     The talker on Board1 runs for 30 seconds and exits.
 
@@ -361,13 +410,13 @@ The scope shot shows a 70% Scheduled traffic 30 % Best Effort traffic distributi
 
 * _Start Receive mode on Board2 and use tcpdump to begin capturing received packets_
 
-    `$ source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -rx`
+    `source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -rx`
 
-    `$ sudo tcpdump -i ep -w qbv.pcap`
+    `sudo tcpdump -i ep -w qbv.pcap`
 
 * _Start Transmit mode on Board1_
 
-    `$ source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -tx`
+    `source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -tx`
 
     The talker on Board1 runs for 30 seconds and exits automatically.
 
@@ -381,7 +430,7 @@ Wireshark trace shows a 70% Scheduled traffic 30 % Best Effort traffic distribut
 
 * Start Wireshark on the host PC. Use the one available under Ubuntu.
 
-    `$ wireshark &`
+    `wireshark &`
 
 * In the Wireshark GUI, select File → Open → Browse and select the qbv.pcap file.
 
@@ -400,6 +449,15 @@ Wireshark trace shows a 70% Scheduled traffic 30 % Best Effort traffic distribut
 
 ### Network Configuration 2 : Network Manager(CNC) and Two KR260/KD240 Boards
 
+**NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well.
+Before running this tutorial please make sure that your `curl --version` package on the CNC is 
+`7.68.0`. Please follow below steps if version does not match:
+```bash
+    sudo apt-cache policy curl
+    sudo apt remove curl
+    sudo apt install -y --no-install-recommends curl=7.68.0-1ubuntu2.18
+```
+
 This configuration requires either two KR260/KD240 units and one KV260/KR260/KD240 unit(CNC) or two KR260/KD240 units and one Linux Running Machine(CNC). The following images represent these configurations:
 
 #### Two KR260/KD240 and one KV260/KR260/KD240(CNC):
@@ -410,13 +468,21 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
 
 ![NM_Setup_2](media/NM_Setup_2.JPG)
 
-**NOTE**: For KD240 J24 is PS Eth, J25B top is PL Eth
+**NOTE**: For KD240 J24 is PS Eth, J25B top is PL Eth. For KR260 J10D is PS Eth, J10B top is PL Eth
 
 #### Run TSN-ROS Out of Box Applications
 
 * Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
-    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
-    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
+    * KR260 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kr260-tsn-rs485pmod
+    ```
+    * KD240 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kd240-motor-ctrl-qei
+    ```
 
 * Setup Ethernet ports by running the following commands on the serial terminal. This sets the MAC/IP/VLAN on the EP and ETH ports of the TSN switch IP.
 
@@ -445,10 +511,15 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
     ```bash
         sudo add-apt-repository ppa:xilinx-apps
         sudo apt update
-        sudo apt install xlnx-tsn-utils
+        sudo apt -y install xlnx-tsn-utils
     ```
 
-    * For CNC as a Linux Machine, clone this [repo](https://github.com/Xilinx/tsn-utils).
+    * For CNC as a Linux Machine, clone and install this [repo](https://github.com/Xilinx/tsn-utils).
+    ```bash
+        git clone https://github.com/Xilinx/tsn-utils.git
+        cd tsn-utils/tsn-networkmanager
+        sudo make install
+    ```
 
     * Discover the two nodes by pinging them.
       ```bash
@@ -485,7 +556,7 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
       ```
         #Example
 
-        ubuntu@kria:~$ sudo python3 /usr/bin/network-manager/main.py
+        ubuntu@kria:~$ sudo /usr/bin/network-manager/xcnc_setup
 
                                       Hi!
                   Welcome to the TSN Network Management Engine
@@ -531,7 +602,7 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
       ```
         # Example
 
-        ubuntu@kria:~$ sudo python3 /usr/bin/network-manager/main.py
+        ubuntu@kria:~$ sudo /usr/bin/network-manager/xcnc_setup
 
                                       Hi!
                   Welcome to the TSN Network Management Engine
@@ -591,7 +662,7 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
       ```
       # Example configs for Board1/Master
 
-      ubuntu@kria:~$ sudo python3 /usr/bin/network-manager/main.py
+      ubuntu@kria:~$ sudo /usr/bin/network-manager/xcnc_setup
 
                                     Hi!
                   Welcome to the TSN Network Management Engine
@@ -634,7 +705,7 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
 
         # Example configs for Board2/Slave
 
-      ubuntu@kria:~$ sudo python3 /usr/bin/network-manager/main.py
+      ubuntu@kria:~$ sudo /usr/bin/network-manager/xcnc_setup
 
                                     Hi!
                   Welcome to the TSN Network Management Engine
@@ -757,7 +828,7 @@ This configuration requires either two KR260/KD240 units and one KV260/KR260/KD2
       ```
         # Example
 
-        ubuntu@kria:~$ sudo python3 /usr/bin/network-manager/main.py
+        ubuntu@kria:~$ sudo /usr/bin/network-manager/xcnc_setup
 
                                       Hi!
                   Welcome to the TSN Network Management Engine
@@ -933,22 +1004,30 @@ A single KR260/KD240 board communicating with a PC workstation capable of TSN ne
     ![i210](media/i210-setup.png)
 
 * Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
-    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
-    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
+    * KR260 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kr260-tsn-rs485pmod
+    ```
+    * KD240 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kd240-motor-ctrl-qei
+    ```
 
 * Setup Ethernet port on the target KR260/KD240 board by running the following commands within the USB-UART connected serial terminal, this sets the MAC/IP/VLAN on the EP and ETH port of the TSN switch IP.
 
-    `$ source /usr/bin/net_setup.sh -b2 `
+    `source /usr/bin/net_setup.sh -b2 `
 
  **Workstation Configuration**
 
 * The TSN networking interface (I210 interface) on the Linux host workstation  must be brought up and linuxptp needs to be installed to demonstrate PTP. To do this, on the Linux workstation, use `sudo ifconfig <i210 interface> up` command as shown in this example usage:
 
-    `$ sudo ifconfig enp2s0 up `
+    `sudo ifconfig enp2s0 up `
 
 * _Install ptpt4l on Workstation_
 
-    `$ sudo apt install linuxptp`
+    `sudo apt install -y linuxptp`
 
 #### Network Time Synchronization Workstation-KR260/KD240 (PTP Demo)
 
@@ -978,14 +1057,14 @@ Using a text editor on the Linux TSN host workstation, create a new ptp4l config
 
 * _Start ptp4l on the Linux TSN host workstation and specify_
 
-    `$ sudo ptp4l -P -2 -H -i <i210 interface> -m -f ptp4l_master.conf >& ptplog & `
+    `sudo ptp4l -P -2 -H -i <i210 interface> -m -f ptp4l_master.conf >& ptplog & `
 
-    `$ sudo ptp4l -P -2 -H -i enp2s0 -p /dev/ptp1 -m -f ptp4l_master.conf >& ptplog & `
+    `sudo ptp4l -P -2 -H -i enp2s0 -p /dev/ptp1 -m -f ptp4l_master.conf >& ptplog & `
 
 > ***Note:*** In cases where there is more than one PTP device available, specify which one is to be used with the -p argument as shown in the following example usage:
 
 * _Start ptp on KR260/KD240 in slave clock mode_
-    `$ source /usr/bin/start_ptp.sh -s `
+    `source /usr/bin/start_ptp.sh -s `
 
 > ***Note:*** Ensure to run the ptp master before starting ptp slave as slave fails to sync when the grandmaster clock is not set. The sync takes about 30 seconds to complete.
 
@@ -1017,11 +1096,11 @@ Oscilloscope Setup (optional)
 
 * Start Wireshark on the Linux host machine and select I210 interface to see traffic data
 
-    `$ wireshark &`
+    `wireshark &`
 
 * Start transmitting packets from the KR260 board
 
-    `$ source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -tx`
+    `source /opt/xilinx/tsn-examples/bin/start_qbv_test.sh -tx`
 
 * The talker on KR260 runs for 30 seconds and exits automatically
 
@@ -1085,8 +1164,16 @@ KD240:
 In this demo, the pmod-test application probes the temperature sensor connected and displays the captured values on the serial terminal.
 
 * Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application package' from initial setup) before testing example application. If the firmware is already loaded, ignore this step and proceed.
-    * KR260 firmware load command - `xmutil loadapp kr260-tsn-rs485pmod`
-    * KD240 firmware load command - `xmutil loadapp kd240-motor-ctrl-qei`
+    * KR260 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kr260-tsn-rs485pmod
+    ```
+    * KD240 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kd240-motor-ctrl-qei
+    ```
 * Probe sensor via RS485 interface.
 
 * Execute binary:
