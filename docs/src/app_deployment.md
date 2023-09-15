@@ -163,6 +163,13 @@ This document shows how to set up the board and run the TSN ROS application.
         $ sudo xmutil loadapp kr260-tsn-rs485pmod            //KR260
         $ sudo xmutil loadapp kd240-motor-ctrl-qei           //KD240
         ```
+        **NOTE**: KD240 Firmware load `xmutil loadapp kd240-motor-ctrl-qei` will print following messages. These are safe to ignore.
+        ```bash
+        [  112.802574] net eth1: Speed other than 10, 100
+        [  112.807227] net eth1: or 1Gbps is not supported
+        [  112.866305] net eth2: Speed other than 10, 100
+        [  112.871168] net eth2: or 1Gbps is not supported
+        ```
 
 
 ## Run Out Of Box Applications
