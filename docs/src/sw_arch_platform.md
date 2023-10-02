@@ -6,7 +6,7 @@ This section describes software components involved in the design and their rela
 
 Following diagram illustrates the top-level architecture and arrangement of various software components:
 
-![Software Architecture Overview](media/sw_arch_intro.png)]
+![Software Architecture Overview](media/sw_arch_intro.png)
 
 - Operating System: Xilinx Linux kernel + Ubuntu env
   - Drivers:
@@ -119,15 +119,26 @@ Modbus data can be carried over serial ports or ethernet interface.
 
 ### Linux driver
 
-In this application, uartlite IP in PL is patched to support RS485, by enabling/connect the DE line. To support this, there is a **uartlite-rs485** driver in the staging area. This driver is copy of original uartlite driver with additional advertised capability of RS485 support. No additional changes are required for the given IP patch.
+* In KR260, uartlite IP in PL is patched to support RS485, by enabling/connect the DE line. To support this, there is a **uartlite-rs485** driver in the staging area. This driver is copy of original uartlite driver with additional advertised capability of RS485 support. No additional changes are required for the given IP patch.
 
-This new driver requires different compatibility string and; hence, the original device tree node's compatible string needs to be overwritten as below.
+  This new driver requires different compatibility string and hence, the original device tree node's compatible string needs to be overwritten as below.
 
-```text
-&axi_uartlite_0 {
-        compatible = "xlnx,axi-uartlite-rs485";
-};
-```
+  ```text
+  &axi_uartlite_0 {
+          compatible = "xlnx,axi-uartlite-rs485";
+  };
+  ```
+
+* In KD240, uart-RS485 enablement is through the PS Uart and needs below device tree entries.
+  These entries are present in the device tree by default, so no overriding is required.
+
+  ```text
+  &uart0 {
+       status = "okay";
+       xlnx,phy-ctrl-gpios = <0x0f 0x48 0x00>;
+       linux,rs485-enabled-at-boot-time;
+  };
+  ```
 
 ### Modbus Library
 
