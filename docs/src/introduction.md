@@ -15,22 +15,45 @@
 
 ## Design Overview
 
-ROS 2 Multi-Node Communications via Time-Sensitive Networking (TSN) application built on KR260 Robotics Start Kit provides a framework for building deterministic interaction between devices. The following figure shows the top-level overview of the design implemented on each KR260 board.
+ROS 2 Multi-Node Communications via Time-Sensitive Networking (TSN) application built on Kria SOM
+Starter Kits provides a framework for building deterministic interaction between devices.
+
+Supported starter kits:
+
+* KR260 Robotics Starter Kit
+* KD240 Drive Starter Kit
+
+The following figure shows the top-level overview of the design implemented on KR260 board:
 
 ![overview diagram](media/intro_overview.png)
 
-In this application, the transmitter/publisher and receiver/subscriber functions are on two separate boards and communicate over Ethernet PHY. The TSN IP in the hardware platform supports time synchronization between devices. It also allows traffic shaping based on traffic classes. The AXI Uartlite IP enables communication with RS485 devices over MODBUS RTU protocol.
+The following figure shows the top-level overview of the design implemented on KD240 board:
+
+![overview diagram](media/intro_overview_kd240.png)
+
+In this application, the transmitter/publisher and receiver/subscriber functions are on two separate boards and communicate over Ethernet PHY. The TSN IP in the hardware platform supports time synchronization between devices. It also allows traffic shaping based on traffic classes. 
+On the KR260, the AXI Uartlite IP enables communication with RS485 devices over MODBUS RTU protocol.
+On the KD240, PS Uart in the kernel enables communication with RS485 devices over MODBUS RTU protocol.
 
 The Robot Operating System (ROS) is a rich set of software libraries and tools for building robot applications. Along with various abstraction for commonly used algorithms, messaging formats, build framework, it also allows and provides selection for middleware. ROS 2 is built on top of DDS/RTPS as its middleware, which provides scalability due to Data-Centric Publisher-Subscriber approach. This application uses the default middleware DDS implementation for message passing between various nodes over TSN network.
 
-Two topologies are supported with this application:
+Topologies supported with this application:
 
 * KR260 to KR260
+* KR260 to KD240
+* KD240 to KD240
 * KR260 to Intel I210 card
+* KD240 to Intel I210 card
 
 The oscilloscope can be used to check clock synchronization, measure latency, and check traffic patterns with the signals routed out to the 12-pin Test PMOD.
 
+* KR260 topology diagram:
+
 ![topology diagram](media/intro_topology.png)
+
+* KD240 topology diagram:
+
+![topology diagram](media/intro_topology_kd240.png)
 
 Some extensions of this application are:
 
@@ -40,7 +63,7 @@ Some extensions of this application are:
 ## Next Steps
 
 * [Application Deployment](app_deployment.md)
-* Go back to the [KR260 SOM ROS 2 Multi-Node Communications via TSN start page](../ros2_multinode_communication_via_tsn_landing)
+* Go back to the [ROS 2 Multi-Node Communications via TSN start page](../ros2_multinode_communication_via_tsn_landing)
 
 <!---
 
