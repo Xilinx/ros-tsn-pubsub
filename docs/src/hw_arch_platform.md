@@ -6,11 +6,17 @@
 
  The PL design provides a platform to support transmission of Ethernet traffic based on traffic shaping protocols. The traffic can be control information to be passed between different nodes in a Robotics system or between various Industrial Field devices. The requirement in these systems would be that the traffic is deterministic.
 
- It also has an RS485 PMOD interface, which can be used to connect to RS485 peripherals such as actuators, sensors, and so on. These could be components in a Robotics system or  part of a Field device.
+ It also has an RS485 interface, which can be used to connect to RS485 peripherals such as actuators, sensors, and so on. These could be components in a Robotics system or  part of a Field device.
 
- The following figure shows the top-level hardware architecture of the reference design.
+ The following figures show the top-level hardware architecture of the reference design:
 
-![Hardware Architecture block diagram](media/hw_arch_tsn.png)
+ * KR260
+
+    ![Hardware Architecture block diagram](media/hw_arch_tsn.png)
+
+* KD240
+
+    ![Hardware Architecture Block](media/hw_arch_tsn_kd240.png)
 
 ## TSN IP
 
@@ -54,15 +60,15 @@ For more information on the IP, refer to [PG085](https://docs.xilinx.com/v/u/en-
 
 The Test PMOD controller is a user IP that drives the [Digilent Test PMOD](https://digilent.com/shop/pmod-tph2-12-pin-test-point-header/) pins. The IP implements registers are detailed below.
 
-| Register offset | Register name | Description  |
-|    :----  | :---      |    :----  |
-|0x00 |slv_reg0| Bit0 is a MUX enable. If 1 then drive Qbv signals on PMOD. If 0 drive TSN publisher/subscriber 8-bit signatures|
-|0x04 |slv_reg1| 8-bit signature when publisher 1 transmits  a TSN frame |
-|0x08 |slv_reg2| 8-bit signature when subscriber 1 receives  a TSN frame |
-|0x0c |slv_reg3| 8-bit signature when publisher 2 transmits  a TSN frame |
-|0x10 |slv_reg4| 8-bit signature when subscriber 2 receives  a TSN frame |
-|0x14 |slv_reg5| 8-bit signature when publisher 3 transmits  a TSN frame |
-|0x18 |slv_reg6| 8-bit signature when subscriber 3 receives  a TSN frame |
+| Register Offset | Register Name | Platform    | Description                                                                                                     |
+|-----------------|---------------|-------------|-----------------------------------------------------------------------------------------------------------------|
+| 0x00            | slv_reg0      | KR260,KD240 | Bit0 is a MUX enable. If 1 then drive Qbv signals on PMOD. If 0 drive TSN publisher/subscriber 8-bit signatures |
+| 0x04            | slv_reg1      | KR260,KD240 | 8-bit signature when publisher 1 transmits a TSN frame                                                          |
+| 0x08            | slv_reg2      | KR260,KD240 | 8-bit signature when publisher 1 transmits a TSN frame                                                          |
+| 0x0c            | slv_reg3      | KR260,KD240 | 8-bit signature when publisher 2 transmits a TSN frame                                                          |
+| 0x10            | slv_reg4      | KR260,KD240 | 8-bit signature when subscriber 2 receives a TSN frame                                                          |
+| 0x14            | slv_reg5      | KR260       | 8-bit signature when publisher 3 transmits a TSN frame                                                          |
+| 0x18            | slv_reg6      | KR260       | 8-bit signature when subscriber 3 receives a TSN frame                                                          |
 
 
 The TSN application can support multiple publishers and subscribers. When the publisher queues up a packet for transmission, it writes a unique 8-bit word to slv_reg*, which is then transmitted on the PMOD pins. Similarly, when the subscriber receives a packet, it writes a unique 8-bit word to slv_reg*, which is then transmitted on the PMOD pins. The PMOD pins of the publisher and the subscriber are hooked up to a scope and are used to measure an end-to-end application latency. The TSN pub sub application sets the MUX (slv_reg0) to 0 before writing the signature value. The figure below shows the mapping on the PMOD pins when MUX is set to 0 and 1.
@@ -75,19 +81,28 @@ The other signal that is monitored to see if the Transmitter and Receiver clocks
 
 For more information on how to use PMOD signals to check clock synchronization, to measure latency and confirm Qbv programming, refer to the [application deployment page](./app_deployment.md).
 
-## AXI Uartlite
+## RS485
 
-The LogiCORE IP AXI UART Lite core converts AXI4 Lite register transactions to RS232 signaling. To support RS485, signaling a patch needs to be applied to the IP core. The AXI Uartlite IP patch is located at the following location and adds a Drive Enable signal to the IP.
+* KR260:
 
-```$working_dir/platforms/vivado/kr260_tsn_rs485pmod/ip```, or [here](https://github.com/Xilinx/kria-vitis-platforms/tree/xlnx_rel_v2022.1/kr260/platforms/vivado/kr260_tsn_rs485pmod/ip), and the patch is also available at the support website [here](https://support.xilinx.com/s/question/0D52E00006hpaVU/feature-request-uartlite-with-rs485-driver-enable-output-signal?language=en_US).
+    The LogiCORE IP AXI UART Lite core converts AXI4 Lite register transactions to RS232 signaling. To support RS485, signaling a patch needs to be applied to the IP core. The AXI Uartlite IP patch is located at the following location and adds a Drive Enable signal to the IP.
 
-The Makefile copies the AXI Uartlite IP from the AMD Vivado&trade; install area and applies the patch.
+    ```$working_dir/platforms/vivado/kr260_tsn_rs485pmod/ip```, or [here](https://github.com/Xilinx/kria-vitis-platforms/tree/xlnx_rel_v2022.1/kr260/platforms/vivado/kr260_tsn_rs485pmod/ip), and the patch is also available at the support website [here](https://support.xilinx.com/s/question/0D52E00006hpaVU/feature-request-uartlite-with-rs485-driver-enable-output-signal?language=en_US).
 
-To test an RS485 interface, the signals are connected to a [Digilent PMOD R485](https://reference.digilentinc.com/pmod/pmodrs485/reference-manual) and a [temperature sensor](https://www.aliexpress.com/item/33054683552.html). The application running on the PS reads and writes to the AXI Uartlite registers and communicates with the temperature sensor using the MODBUS protocol.
+    The Makefile copies the AXI Uartlite IP from the AMD Vivado&trade; install area and applies the patch.
 
-For information on how to test the RS485 PMOD interface, refer to the [application deployment page](./app_deployment.md).
+    To test an RS485 interface, the signals are connected to a [Digilent PMOD R485](https://reference.digilentinc.com/pmod/pmodrs485/reference-manual) and a [temperature sensor](https://www.aliexpress.com/item/33054683552.html). The application running on the PS reads and writes to the AXI Uartlite registers and communicates with the temperature sensor using the MODBUS protocol.
 
-For an overview on RS485 and MODBUS, refer to this [article](https://www.yoctopuce.com/EN/article/a-quick-tutorial-on-rs485-and-modbus).
+    For an overview on RS485 and MODBUS, refer to this [article](https://www.yoctopuce.com/EN/article/a-quick-tutorial-on-rs485-and-modbus).
+
+* KD240:
+
+    UART-RS485 enablement is through the PS Uart Since it is present in the kernel by default, it is installed and enabled at boot-time
+
+    To test an RS485 interface, the signals are connected on the J22 connector on the KD240. The application running on the PS reads and writes to the controlling dev terminal and communicates
+    with the temperature sensor using MODBUS protocol.
+
+For information on how to test the RS485 interface, refer to the [application deployment page](./app_deployment.md).
 
 ## Clocks, Resets and Interrupts
 
@@ -109,47 +124,65 @@ The following table identifies the main clocks of the PL design, their source, c
 
 The following table summarizes the resets used in this design.
 
-| Reset Source | Function  |
-| :---         |    :----  |
-|pl_resetn0|PL reset for proc_sys_reset modules |
-|rst_clk_wiz_0_100M|Synchronous resets for clk_out100M clock domain       |
-|rst_clk_wiz_0_125M|Synchronous resets for clk_out125M clock domain       |
-|rst_clk_wiz_0_200M|Synchronous resets for clk_out200M clock domain       |
-|rst_clk_wiz_0_300M|Synchronous resets for clk_out300M clock domain       |
-|proc_sys_reset_0|Synchronous resets for ptp timer clock domain       |
+| Reset Source           | Function                                              |
+|------------------------|-------------------------------------------------------|
+| pl_resetn0             | PL reset for proc_sys_reset modules and TSN Subsystem |
+| proc_sys_reset_0       | Synchronous resets for clk_out_100M clock domain      |
+| proc_sys_reset_1       | Synchronous resets for clk_out_48M clock domain       |
+| TSN Phy_reset_n        | Reset for External Phy (tied high)                    |
+| TSN rst_clk_wiz_0_100M | Synchronous Reset for clk_out100M clock domain        |
+| TSN rst_clk_wiz_0_125M | Synchronous Reset for clk_out125M clock domain        |
+| TSN rst_clk_wiz_0_200M | Synchronous Reset for clk_out200M clock domain        |
+| TSN rst_clk_wiz_0_300M | Synchronous Reset for clk_out300M clock domain        |
 
 ### Interrupts
 
 The following table lists the PL-to-PS interrupts used in this design. The [AXI Interrupt controller IP](https://docs.xilinx.com/v/u/en-US/pg099-axi-intc) connects the PL interrupts to the pl_ps_irq0 signal on the PS.
 
-| Inerrupt ID | Instance  |
-| :---        |    :----  |
-|intr[0-7]| TSN IP           |
-|intr[8]| TADMA IP          |
-|intr[9-14]| MCDMA IP            |
-|intr[15]| AXI Uartlite IP            |
-|pl_ps_irq1| Exposed as a Platform interface and can be used by an accelerator |
+| Interrupt ID | Platform    | Instance                                                          |
+|--------------|-------------|-------------------------------------------------------------------|
+| intr[0-7]    | KR260,KD240 | TSN IP                                                            |
+| intr[8]      | KR260,KD240 | TADMA IP                                                          |
+| intr[9-14]   | KR260,KD240 | MCDMA IP                                                          |
+| intr[15]     | KR260       | AXI Uartlite IP                                                   |
+| pl_ps_irq1   | KR260       | Exposed as a Platform interface and can be used by an accelerator |
 
 
 ## Resource Utilization
 
 The resource utilization numbers on this platform post implementation is reported in the following table.
 
-| Resource  | Utilization  | Available  | Utilization %  |
-| :---      |    :----     | :---       |    :----       |
-|LUT|47061|117120|40.18|
-|LUTRAM|3769|57600|6.54|
-|FF|70328|234240|30.02|
-|BRAM|79.5|144|55.21|
-|URAM|13|64|20.31|
-|DSP|35|1248|2.80|
-|IO|43|186|22.75|
-|BUFG|17|352|4.83|
-|MMCM|1|4|25.0|
+* KR260:
+
+    | Resource | Utilization | Available | Utilization % |
+    |----------|-------------|-----------|---------------|
+    | LUT      | 47061       | 117120    | 40.18         |
+    | LUTRAM   | 3769        | 57600     | 6.54          |
+    | FF       | 70328       | 234240    | 30.02         |
+    | BRAM     | 79.5        | 144       | 55.21         |
+    | URAM     | 13          | 64        | 20.31         |
+    | DSP      | 35          | 1248      | 2.80          |
+    | IO       | 43          | 186       | 22.75         |
+    | BUFG     | 17          | 352       | 4.83          |
+    | MMCM     | 1           | 4         | 25.0          |
+
+* KD240:
+
+    | Resource | Utilization | Available | Utilization % |
+    |----------|-------------|-----------|---------------|
+    | LUT      | 57895       | 70560     | 82.05         |
+    | LUTRAM   | 4098        | 28800     | 14.23         |
+    | FF       | 84715       | 141120    | 60.03         |
+    | BRAM     | 116         | 216       | 53.70         |
+    | DSP      | 133         | 360       | 36.94         |
+    | IO       | 63          | 81        | 77.78         |
+    | BUFG     | 21          | 196       | 10.71         |
+    | MMCM     | 2           | 3         | 66.67         |
+    | PLL      | 0           | 6         | 0.00          |
 
 ## Next Steps
 
-* Go back to the [KR260 SOM ROS 2 Multi-Node Communications via TSN start page](../ros2_multinode_communication_via_tsn_landing)
+* Go back to the [SOM ROS 2 Multi-Node Communications via TSN start page](../ros2_multinode_communication_via_tsn_landing)
 
 <!---
 
