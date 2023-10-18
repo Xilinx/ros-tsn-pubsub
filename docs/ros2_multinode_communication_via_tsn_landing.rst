@@ -47,6 +47,7 @@ Tutorials
    Building the Hardware design using Vivado <../build_vivado_design>
    Creating a Vitis Platform <../build_vitis_platform>
    Generate Custom Firmware <../generating_custom_firmware>
+   Software Build Instructions <docs/sw_build_instructions>
 
 * Please first review the [FAQ](https://xilinx.github.io/kria-apps-docs/faq.html) for commonly encountered issues across Kria SOM applications.
 
