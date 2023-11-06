@@ -42,9 +42,9 @@ Tutorials
 .. toctree::
    :maxdepth: 1
   
-   KR260 Starter Kit Linux Boot <../kria_starterkit_linux_boot>
+   Kria Starter Kit Linux Boot <../kria_starterkit_linux_boot>
    Building the Design components <../building_the_design>
-   Building the Hardware design using Vivado <../build_vivado_design>
+   Building the Hardware Design Using Vivado <../build_vivado_design>
    Creating a Vitis Platform <../build_vitis_platform>
    Generate Custom Firmware <../generating_custom_firmware>
    Software Build Instructions <docs/sw_build_instructions>
