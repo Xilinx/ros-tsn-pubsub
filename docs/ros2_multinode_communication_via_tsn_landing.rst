@@ -31,9 +31,8 @@ Quick Start
 
 .. toctree::
    :maxdepth: 1
-  
-   KR260 Starter Kit Linux Boot <../kria_starterkit_linux_boot>
-   Setting up the Board and Application deployment <src/app_deployment.md>
+
+   Setting up the Board and Application Deployment <src/app_deployment.md>
 
 ***************************
 Tutorials
@@ -42,14 +41,17 @@ Tutorials
 .. toctree::
    :maxdepth: 1
   
-   Kria Starter Kit Linux Boot <../kria_starterkit_linux_boot>
-   Building the Design components <../building_the_design>
+   Linux Boot <../kria_starterkit_linux_boot>
+   Building the Design Components <../building_the_design>
    Building the Hardware Design Using Vivado <../build_vivado_design>
    Creating a Vitis Platform <../build_vitis_platform>
    Generate Custom Firmware <../generating_custom_firmware>
    Software Build Instructions <src/sw_build_instructions>
 
-* Please first review the [FAQ](https://xilinx.github.io/kria-apps-docs/faq.html) for commonly encountered issues across Kria SOM applications.
+
+.. important::
+   Review the `FAQ <https://xilinx.github.io/kria-apps-docs/faq.html>`_ for commonly encountered issues across Kria SOM applications.
+
 
 ******************
 Architecture
