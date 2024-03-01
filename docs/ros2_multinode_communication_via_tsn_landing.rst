@@ -10,7 +10,7 @@ Overview
 .. toctree::
    :maxdepth: 1
   
-   Introduction <docs/introduction.md>
+   Introduction <src/introduction.md>
 
 
 Features
@@ -31,9 +31,8 @@ Quick Start
 
 .. toctree::
    :maxdepth: 1
-  
-   KR260 Starter Kit Linux Boot <../kria_starterkit_linux_boot>
-   Setting up the Board and Application deployment <docs/app_deployment.md>
+
+   Setting up the Board and Application Deployment <src/app_deployment.md>
 
 ***************************
 Tutorials
@@ -42,14 +41,17 @@ Tutorials
 .. toctree::
    :maxdepth: 1
   
-   KR260 Starter Kit Linux Boot <../kria_starterkit_linux_boot>
-   Building the Design components <../building_the_design>
-   Building the Hardware design using Vivado <../build_vivado_design>
+   Linux Boot <../kria_starterkit_linux_boot>
+   Building the Design Components <../building_the_design>
+   Building the Hardware Design Using Vivado <../build_vivado_design>
    Creating a Vitis Platform <../build_vitis_platform>
    Generate Custom Firmware <../generating_custom_firmware>
-   Software Build Instructions <docs/sw_build_instructions>
+   Software Build Instructions <src/sw_build_instructions>
 
-* Please first review the [FAQ](https://xilinx.github.io/kria-apps-docs/faq.html) for commonly encountered issues across Kria SOM applications.
+
+.. important::
+   Review the `FAQ <https://xilinx.github.io/kria-apps-docs/faq.html>`_ for commonly encountered issues across Kria SOM applications.
+
 
 ******************
 Architecture
@@ -58,8 +60,8 @@ Architecture
 .. toctree::
    :maxdepth: 1
   
-   Software Architecture - Platform <docs/sw_arch_platform>
-   Hardware Architecture - Platform <docs/hw_arch_platform>
+   Software Architecture - Platform <src/sw_arch_platform>
+   Hardware Architecture - Platform <src/hw_arch_platform>
 
 
 *******************************
