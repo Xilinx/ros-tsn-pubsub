@@ -52,6 +52,8 @@ This document shows how to set up the board and run the TSN ROS application.
 
 * [12VDC Power Supply](https://digilent.com/shop/12v-3a-power-supply/) with Prototyping or Bare Terminals – Optional (Sold Separately)
 
+* Two Digilent Pmod CAN devices - Optional (Sold Separately [here](https://digilent.com/reference/pmod/pmodcan/start))
+
 * Wireshark tools installed on host machine (Ubuntu 20.04 Linux used for documentation)
 
 **NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well
@@ -1196,6 +1198,129 @@ The output on the serial terminal should match the value displayed on the seven-
 > ```
 > For reference, here is the register map of the sensor:
 > ![tmp](media/tmp-ref.png)
+
+
+### CAN Communication Setup and Demonstration
+
+The application extends its functionality to support CAN communication by interfacing with
+[PMOD CAN](https://digilent.com/reference/pmod/pmodcan/start) devices. This additional feature
+allows seamless communication between devices through the CAN interface, enabling efficient
+data exchange for various applications.
+
+#### CAN: Board Setup
+
+The configuration requires a setup involving two Kria boards, either for communication between
+two KR260 boards or between a KR260 board and a KD240 board.
+
+1. KR260-KR260 Setup
+
+Connect the PMOD-CAN test point headers to the J19 (PMOD 3) connector on both KR260 boards.
+Connect the PMOD-CAN devices on both boards using jumper wires as shown below:
+- Connect GND on J19 (KR260 board 1) to GND on J19 (KR260 board 2)
+- Connect CANH on J19 (KR260 board 1) to CANH on J19 (KR260 board 2)
+- Connect CANL on J19 (KR260 board 1) to CANL on J19 (KR260 board 2)
+
+![KR-KR-PMODCAN](media/KR-KR-PMODCAN.png)
+
+2. KR260-KD240 Setup
+
+Connect the PMOD-CAN test point headers to the J19 (PMOD 3) connector on KR260 board.
+Connect the PMOD-CAN device on KR260 board to the CAN 2.0 J18 connector on KD240 board
+using jumper wires as shown below:
+- Connect GND on J19 (KR260 board 1) to GND on J18 (KD240 board 2)
+- Connect CANH on J19 (KR260 board 1) to CANH on J18 (KD240 board 2)
+- Connect CANL on J19 (KR260 board 1) to CANL on J18 (KD240 board 2)
+
+![KR-KD-PMODCAN](media/KR-KD-PMODCAN.png)
+
+
+#### CAN Communication Demo
+
+This tutorial provides a step-by-step guide to run a demo of CAN communication between two
+Kria boards using the CAN interface. It details the necessary packages and commands
+to establish communication, send, and receive messages. Note that this feature is an additional
+capability provided by the application to support CAN communication.
+
+* Required Packages
+Install the necessary packages on both devices:
+    ```bash
+	sudo apt update
+	sudo apt install can-utils   
+    ```
+
+* Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application
+package' from initial setup) before testing example application. If the firmware is already
+loaded, ignore this step and proceed.
+    * KR260 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kr260-tsn-rs485pmod
+    ```
+    * KD240 firmware load command:
+    ```bash
+        sudo xmutil unloadapp
+        sudo xmutil loadapp kd240-motor-ctrl-qei
+    ```
+* Verify CAN device enumeration on both the boards:
+    ```bash
+	ip link show
+    ```
+    Ensure that 'can0' node is listed to confirm that the CAN device is recognized.
+    An example output when run on KR260:
+    ```bash
+	ubuntu@kria:~$ ip link show
+	1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    	link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+	11: eth0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN mode DEFAULT group default qlen 1000
+    	link/ether 00:0a:35:10:38:7d brd ff:ff:ff:ff:ff:ff
+	12: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    	link/ether 00:0a:35:10:38:7e brd ff:ff:ff:ff:ff:ff
+	13: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default
+    	link/ether 02:42:ba:13:d1:63 brd ff:ff:ff:ff:ff:ff
+	14: ep: <BROADCAST,UP,LOWER_UP> mtu 1500 qdisc mq state UNKNOWN mode DEFAULT group default qlen 1000
+    	link/ether 00:0a:35:00:01:05 brd ff:ff:ff:ff:ff:ff
+	15: eth2: <NO-CARRIER,BROADCAST,UP> mtu 1500 qdisc mq state DOWN mode DEFAULT group default qlen 1000
+    	link/ether 00:0a:35:00:01:0e brd ff:ff:ff:ff:ff:ff
+	16: eth3: <NO-CARRIER,BROADCAST,UP> mtu 1500 qdisc mq state DOWN mode DEFAULT group default qlen 1000
+    	link/ether 00:0a:35:00:01:0f brd ff:ff:ff:ff:ff:ff
+	17: can0: <NOARP,ECHO> mtu 16 qdisc noop state DOWN mode DEFAULT group default qlen 10
+    	link/can
+    ```
+* Setup the CAN interface on both the boards:
+    ```bash
+	sudo ip link set can0 type can bitrate 100000
+	sudo ip link set can0 txqueuelen 1000
+	sudo ip link set can0 up
+    ```
+
+* Verify CAN communication:
+
+  Start monitoring messages on board 2
+    ```bash
+	sudo candump can0
+    ```
+  Send CAN message from board 1
+    ```bash
+	sudo cansend can0 123#1122334455667788
+    ```
+  An example output on receiving the message on board 2 is shown below:
+    ```bash
+	ubuntu@kria:~$ sudo candump can0
+
+  	can0  123   [8]  11 22 33 44 55 66 77 88
+    ```
+  Similarly, repeat the above steps by sending the message on board 2 and monitoring on board 1.
+  This ensures that both sending and receiving functionality is verified on both devices.
+
+
+* Bring down the CAN interfaces on both boards after testing:
+   ```bash
+	sudo ip link set can0 down
+   ```
+
+The demo provides users with a foundation to explore and develop CAN-based applications, leveraging
+the communication capability provided by the platform. Integrating this with ROS applications allows
+for efficient and reliable real-time data exchange, enhancing performance and communication.
 
 ## Known issues
 
