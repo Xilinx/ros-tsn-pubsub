@@ -6,7 +6,9 @@
 
  The PL design provides a platform to support transmission of Ethernet traffic based on traffic shaping protocols. The traffic can be control information to be passed between different nodes in a Robotics system or between various Industrial Field devices. The requirement in these systems would be that the traffic is deterministic.
 
- It also has an RS485 interface, which can be used to connect to RS485 peripherals such as actuators, sensors, and so on. These could be components in a Robotics system or  part of a Field device.
+ It has an RS485 interface, which can be used to connect to RS485 peripherals such as actuators, sensors, and so on. These could be components in a Robotics system or  part of a Field device.
+
+ It also has a CAN interface, which can be connected to a CAN interface on another board, or other devices, daisy chaining multiple CAN nodes. CAN is widely used communication protocol in Industrial and Robotic applications to exchange control information.
 
  The following figures show the top-level hardware architecture of the reference design:
 
@@ -102,7 +104,14 @@ For more information on how to use PMOD signals to check clock synchronization, 
     To test an RS485 interface, the signals are connected on the J22 connector on the KD240. The application running on the PS reads and writes to the controlling dev terminal and communicates
     with the temperature sensor using MODBUS protocol.
 
-For information on how to test the RS485 interface, refer to the [application deployment page](./app_deployment.md).
+    For information on how to test the RS485 interface, refer to the [application deployment page](./app_deployment.md).
+
+## CAN
+
+* KR260:
+    
+    The LogiCORE IP [AXI Quad Serial Peripheral Interface (SPI)](https://www.amd.com/content/dam/xilinx/support/documents/ip_documentation/axi_quad_spi/v3_2/pg153-axi-quad-spi.pdf) core connects the AXI4 interface to SPI slave devices that support the Standard, Dual, or Quad SPI protocol instruction set. The [Digilent PMOD CAN](https://digilent.com/reference/pmod/pmodcan/start) is controlled by AXI Quad SPI through the 12-bit PMOD interface. The Digilent PMOD also has an embedded  Microchip MCP25625  that allows for communication with external CAN devices.
+
 
 ## Clocks, Resets and Interrupts
 
@@ -116,7 +125,7 @@ The following table identifies the main clocks of the PL design, their source, c
 | clk_out1* |Clocking wizard |200 MHz| TSN IP fifo clock, TADMA IP and MCDMA IP data transactions clock |
 | clk_out2* |Clocking wizard| 125 MHz | TSN IP and TADMA IP Real Time clock (RTC) for internal timers for time sensitivity |
 | clk_out3* |Clocking wizard |300 MHz | reference clock for IDELAY control block for PHY operation on TSN IP|
-| clk_out4* |Clocking wizard |100 MHz | AXI-Lite clock to configure TSN IP, MCDMA IP, AXI Uartlite IP, Register interface IP |
+| clk_out4* |Clocking wizard |100 MHz | AXI-Lite clock to configure TSN IP, MCDMA IP, AXI Uartlite IP, AXI Quad SPI IP, Register interface IP |
 
 \*Clocks exposed as a Platform interface and can be used by an accelerator.
 
@@ -145,6 +154,8 @@ The following table lists the PL-to-PS interrupts used in this design. The [AXI 
 | intr[8]      | KR260,KD240 | TADMA IP                                                          |
 | intr[9-14]   | KR260,KD240 | MCDMA IP                                                          |
 | intr[15]     | KR260       | AXI Uartlite IP                                                   |
+| intr[16]     | KR260       | PMOD CAN                                                          |
+| intr[17]     | KR260       | AXI Quad SPI IP                                                   |
 | pl_ps_irq1   | KR260       | Exposed as a Platform interface and can be used by an accelerator |
 
 
@@ -156,29 +167,29 @@ The resource utilization numbers on this platform post implementation is reporte
 
     | Resource | Utilization | Available | Utilization % |
     |----------|-------------|-----------|---------------|
-    | LUT      | 47061       | 117120    | 40.18         |
-    | LUTRAM   | 3769        | 57600     | 6.54          |
-    | FF       | 70328       | 234240    | 30.02         |
+    | LUT      | 47591       | 117120    | 40.57         |
+    | LUTRAM   | 3782        | 57600     | 6.57          |
+    | FF       | 70868       | 234240    | 30.25         |
     | BRAM     | 79.5        | 144       | 55.21         |
     | URAM     | 13          | 64        | 20.31         |
     | DSP      | 35          | 1248      | 2.80          |
-    | IO       | 43          | 186       | 22.75         |
-    | BUFG     | 17          | 352       | 4.83          |
+    | IO       | 49          | 189       | 25.93         |
+    | BUFGCE   | 13          | 11        | 11.61         |
     | MMCM     | 1           | 4         | 25.0          |
 
 * KD240:
 
     | Resource | Utilization | Available | Utilization % |
     |----------|-------------|-----------|---------------|
-    | LUT      | 57895       | 70560     | 82.05         |
-    | LUTRAM   | 4098        | 28800     | 14.23         |
-    | FF       | 84715       | 141120    | 60.03         |
+    | LUT      | 60004       | 70560     | 85.04         |
+    | LUTRAM   | 2996        | 28800     | 10.40         |
+    | FF       | 81183       | 141120    | 57.53         |
     | BRAM     | 116         | 216       | 53.70         |
-    | DSP      | 133         | 360       | 36.94         |
-    | IO       | 63          | 81        | 77.78         |
-    | BUFG     | 21          | 196       | 10.71         |
+    | DSP      | 136         | 360       | 37.78         |
+    | IO       | 64          | 81        | 79.01         |
+    | BUFGCE   | 16          | 88        | 18.18         |
     | MMCM     | 2           | 3         | 66.67         |
-    | PLL      | 0           | 6         | 0.00          |
+    | BUFG_PS  | 1           | 72        | 1.39          |
 
 ## Next Steps
 
