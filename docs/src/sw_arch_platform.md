@@ -12,6 +12,8 @@ Following diagram illustrates the top-level architecture and arrangement of vari
   - Drivers:
     - Uart-rs485
     - set of tsn related drivers
+    - AXI QSPI
+    - MCP251x CAN driver
 - Libraries and Middleware
   - ModBus
   - ROS2
@@ -29,6 +31,7 @@ The following list describes the top-level application functions:
 - TSN demonstration
 - ROS demonstration
 - Modbus and RS485 demonstration
+- CAN communication demonstration
 
 ## TSN
 
@@ -156,6 +159,43 @@ To demonstrate Modbus and RS485 capability an example C application, pmdo-rs485-
 - Adjust response time
 - Read Temperature and Humidity values from the sensor
 
+## CAN Interface and Demonstration
+
+The platform includes support for the mcp25625 microcontroller in the Digilent PMOD CAN device,
+enabled through the quad SPI interface implemented in the PL. Controller Area Network (CAN) is a
+robust communication protocol designed to allow devices to communicate with each other. It is
+widely used in industrial applications due to its reliability and efficiency in data transmission.
+Integrating CAN with ROS environment enhances the ability to manage real-time data exchange in
+robotics and automation systems.  
+
+### Driver
+
+* The AXI QSPI driver facilitates high-speed communication with the Quad SPI interface, which is used
+to initialize and configure the mcp25625 CAN controller.
+* The MCP251x CAN driver is utilized to interface with the Digilent PMOD CAN device. This driver
+supports standard protocols and ensures reliable data transmission across the CAN network.
+
+  The necessary device tree entry that configures the AXI QSPI interface to initialize
+  the CAN controller by specifying the required SPI settings and CAN parameters:
+
+ ```text
+  &axi_quad_spi_CAN {
+                compatible = "xlnx,axi-quad-spi-3.2", "xlnx,xps-spi-2.00.a";
+                xlnx,num-ss-bits = <0x1>;
+                xlnx,spi-mode = <0>;
+                can@0 {
+                        compatible = "microchip,mcp25625";
+                        spi-max-frequency = <10000000>;
+                };
+  };        
+  ```
+
+For the communication, can-utils package is used to interact with the CAN bus via SocketCAN framework, 
+which provides a standardized API for CAN communication on Linux systems. 
+The [CAN demonstration](app_deployment.md#can-communication-setup-and-demonstration) section includes
+instructions to initialize the CAN interface, establish communication, basic examples of sending and
+receiving CAN messages.
+
 ## References
 
 - [Xilinx TSN Solution](https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/25034864/Xilinx+TSN+Solution)
@@ -166,6 +206,7 @@ To demonstrate Modbus and RS485 capability an example C application, pmdo-rs485-
 - [Modbus Protocol](https://www.modbus.org/specs.php)
 - [RS485](https://en.wikipedia.org/wiki/RS-485)
 - [Uartlite Driver](https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842249/Uartlite+Driver) (Original driver)
+- [Axi-Quad SPI](https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/575209708/Axi-Quad+SPI)
 
 ### Next Steps
 
