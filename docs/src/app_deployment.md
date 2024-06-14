@@ -52,7 +52,7 @@ This document shows how to set up the board and run the TSN ROS application.
 
 * [12VDC Power Supply](https://digilent.com/shop/12v-3a-power-supply/) with Prototyping or Bare Terminals – Optional (Sold Separately)
 
-* Two Digilent Pmod CAN devices - Optional (Sold Separately [here](https://digilent.com/reference/pmod/pmodcan/start))
+* Two Digilent Pmod CAN devices - Optional for KR260 CAN testing only (Sold Separately [here](https://digilent.com/reference/pmod/pmodcan/start))
 
 * Wireshark tools installed on host machine (Ubuntu 20.04 Linux used for documentation)
 
@@ -64,19 +64,19 @@ Testing was performed with the following artifacts:
 
 #### KD240 platform artifacts
 
-| Component                          | Version              |
-|------------------------------------|----------------------|
-| Boot Firmware                      | K24-BootFW-01.00.bin |
-| Linux Kernel                       | 5.15.0-9002          |
-| xlnx-firmware-kd240-motor-ctrl-qei | 0.10.1-0xlnx1        |
+| Component                          | Version                   |
+|------------------------------------|---------------------------|
+| Boot Firmware                      | K24-BootFW-01.01 bin      |
+| Linux Kernel                       | 5.15.0-1030-xilinx-zynqmp |
+| xlnx-firmware-kd240-motor-ctrl-qei | 0.12-0xlnx1               |
 
 #### KR260 platform artifacts
 
-| Component                          | Version                                                 |
-|------------------------------------|---------------------------------------------------------|
-| Boot Firmware                      | BOOT_xilinx-k26-starterkit-v2022.1-09152304_update3.BIN |
-| Linux Kernel                       | 5.15.0-1023                                             |
-| xlnx-firmware-kr260-tsn-rs485pmod  | 0.10.1-0xlnx1                                           |
+| Component                          | Version                                 |
+|------------------------------------|-----------------------------------------|
+| Boot Firmware                      | BOOT-k26-starter-kit-20230516185703.BIN |
+| Linux Kernel                       | 5.15.0-1030-xilinx-zynqmp               |
+| xlnx-firmware-kr260-tsn-rs485pmod  | 0.12-0xlnx1                             |
 
 Please refer to the [Kria Wiki](https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/1641152513/Kria+K26+SOM#Boot-Firmware-Updates)
 to obtain latest linux image and boot firmware.
@@ -1231,6 +1231,9 @@ using jumper wires as shown below:
 - Connect CANH on J19 (KR260 board 1) to CANH on J18 (KD240 board 2)
 - Connect CANL on J19 (KR260 board 1) to CANL on J18 (KD240 board 2)
 
+> ***Note:*** PMOD CAN device is required for KR260 only. For KD240, the PS CAN port J18 is
+used. 
+
 ![KR-KD-PMODCAN](media/KR-KD-PMODCAN.png)
 
 
@@ -1241,8 +1244,7 @@ Kria boards using the CAN interface. It details the necessary packages and comma
 to establish communication, send, and receive messages. Note that this feature is an additional
 capability provided by the application to support CAN communication.
 
-* Required Packages
-Install the necessary packages on both devices:
+* Install the necessary packages on both devices:
     ```bash
 	sudo apt update
 	sudo apt install can-utils   
