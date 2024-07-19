@@ -69,9 +69,9 @@ Repository
 *******************************
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 1
   
-  Software Repository <https://github.com/Xilinx/ros-tsn-pubsub>
+   Software Repository <https://github.com/Xilinx/ros-tsn-pubsub>
 
 
 Xilinx Support
