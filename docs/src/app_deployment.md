@@ -12,15 +12,40 @@
 
 # Board Setup and Application Deployment
 
-## Overview of updates
-
-* Optional feature to Enable Frame Packet preemption
-
-* Enablement to use another machine as a CNC to set QBV schedule and FDB Cam entries onto the 2 KR260/KD240 Nodes
-
 ## Introduction
 
 This document shows how to set up the board and run the TSN ROS application.
+
+## Revision History
+
+### Version - v0.2
+
+Refreshed app for Ubuntu 24.04 compatibility with updates across the documentation.
+
+#### Change Log
+
+Documentation:
+
+* Added ROS2 Jazzy installation instructions.
+* Added instructions to add user to the `dialout` group to access `/dev/tty` devices for RS485 Temp-Humidity sensor test.
+
+### Version - v0.1.1
+
+Added support for CAN Communication between board to board.
+
+#### Change Log
+
+Apps:
+
+* Provides seamless communication between devices through the CAN interface, enabling efficient data exchange for various applications.
+
+Tests:
+
+* Example to support CAN communication using the PMOD CAN between board to board.
+
+Documentation:
+
+* Added steps and instructions to demonstrate CAN Communication.
 
 ## Pre-requisite
 
@@ -58,39 +83,48 @@ This document shows how to set up the board and run the TSN ROS application.
 
 **NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well
 
-### Tested Artifacts
+### Tested Artifact versions
 
 Testing was performed with the following artifacts:
 
-#### KD240 platform artifacts
+#### KR260 Platform artifacts
 
-| Component                          | Version                   |
-|------------------------------------|---------------------------|
-| Boot Firmware                      | K24-BootFW-01.01.bin      |
-| Linux Kernel                       | 5.15.0-1030-xilinx-zynqmp |
-| xlnx-firmware-kd240-motor-ctrl-qei | 0.12-0xlnx1               |
+| Components                           | Versions           |
+| ------------------------------------ | ------------------ |
+| Ubuntu                               | 24.04 Noble        |
+| Linux kernel                         | 6.8.0-1008-xilinx  |
+| Boot firmware                        | K24-BootFW-01.02   |
+| xlnx-firmware-kr260-tsn-rs485pmod    | 1.0-0xlnx2         |
 
-#### KR260 platform artifacts
+#### KD240 Platform artifacts
 
-| Component                          | Version                   |
-|------------------------------------|---------------------------|
-| Boot Firmware                      | K26-BootFW-01.01.bin      |
-| Linux Kernel                       | 5.15.0-1030-xilinx-zynqmp |
-| xlnx-firmware-kr260-tsn-rs485pmod  | 0.12-0xlnx1               |
+| Components                           | Versions           |
+| ------------------------------------ | ------------------ |
+| Ubuntu                               | 24.04 Noble        |
+| Linux kernel                         | 6.8.0-1008-xilinx  |
+| Boot firmware                        | K24-BootFW-01.02   |
+| xlnx-firmware-kd240-motor-ctrl-qei   | 1.0-0xlnx2         |
 
-Please refer to the [Kria Wiki](https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/1641152513/Kria+K26+SOM#Boot-Firmware-Updates)
-to obtain latest linux image and boot firmware.
+#### Application artifacts
 
-#### Application packages
+| Application Package            | Ubuntu versions                   |
+| ------------------------------ | --------------------------------- |
+| xlnx-tsn-utils                 | 0.3-0xlnx2                        |
+| xlnx-app-kr260-tsn-examples    | 0.2-0xlnx3                        |
+| xlnx-app-kr260-pmod-rs485-test | 0.2-0xlnx1                        |
+| ros-humble-xlnx-pubsub         | 0.1.0-0noble                      |
+| ethtool                        | 5.16                              |
+| lldpad                         | 1.1+git20241016-tsn-0ubuntu1xlnx2 |
 
-| Package                        | Version                      |
-| ------------------------------ | ---------------------------- |
-| xlnx-tsn-utils                 | 0.3-0xlnx1                   |
-| xlnx-app-kr260-tsn-examples    | 0.2-0xlnx2                   |
-| xlnx-app-kr260-pmod-rs485-test | 0.1-0xlnx1                   |
-| ros-humble-xlnx-pubsub         | 0.1.0-0jammy                 |
-| ethtool                        | 1:5.16+tsn-qbr-0ubuntu1xlnx1 |
-| lldpad                         | 1.1+tsn-qbr-0ubuntu1xlnx2    |
+#### Repositories Information
+
+| Repository                                                                               | Release Tag                                                                                                  |
+|----------------------------------------------------------------------------------------- |------------------------------------------------------------------------------------------------------------- |
+| [Kria SOM Vitis Platforms and Overlays](https://github.com/Xilinx/kria-vitis-platforms)  | [v1.0](https://github.com/Xilinx/kria-vitis-platforms/releases/tag/v1.0)                                     |
+| [Xilinx TSN Utils](https://github.com/Xilinx/tsn-utils)                                  | [v0.3](https://github.com/Xilinx/tsn-utils/releases/tag/v0.3)                                                |
+| [Xilinx TSN Talker-Listener](https://github.com/Xilinx/tsn-talker-listener)              | [v0.2](https://github.com/Xilinx/tsn-talker-listener/releases/tag/v0.2)                                      |
+| [Xilinx PMOD RS485 Test](https://github.com/Xilinx/pmod-rs485-test)                      | [0.2](https://github.com/Xilinx/pmod-rs485-test/releases/tag/v0.2)                                            |
+| [Xilinx ROS TSN PubSub](https://github.com/Xilinx/ros-tsn-pubsub)                        | [v0.1.1](https://github.com/Xilinx/ros-tsn-pubsub/releases/tag/v0.1.1)                                       |
 
 ### Initial Setup
 
@@ -99,23 +133,6 @@ to obtain latest linux image and boot firmware.
     * [Kria Starter Kit Linux Boot on KD240](https://xilinx.github.io/kria-apps-docs/kd240/linux_boot.html)
 
 2. Get the latest TSN-ROS application and firmware package:
-
-    * Search the package feed for packages compatible with KR260.
-
-       ```bash
-       sudo xmutil getpkgs
-       ```
-
-       An example output is shown below:
-       ```bash
-        Searching package feed for packages compatible with: kr260
-
-        xlnx-app-kr260-mv-defect-detect/jammy 0.0.20220621.4729324-0xlnx3 arm64 demo application for Xilinx boards - kr260 mv-defect-detect application
-        xlnx-app-kr260-pmod-rs485-test/jammy 0.1-0xlnx1 arm64  demo application for Xilinx boards - kr260 pmod-rs485-test application
-        xlnx-app-kr260-tsn-examples/jammy 0.1-0xlnx1 arm64
-       ```
-       **NOTE**: There are no dedicated packages for KD240, the same TSN packages can be used as
-        for KR260
 
     * Install the AMD demo application packages and dependencies for ROS-TSN.
 
@@ -149,14 +166,14 @@ to obtain latest linux image and boot firmware.
 
     * Install ROS 2 humble.
 
-        Refer to [ROS 2 Documentation](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html) for the installation steps. Here is the snippet of what is needed for this application:
+        Refer to [ROS 2 Documentation](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html) for the installation steps. Here is the snippet of what is needed for this application:
 
         ```bash
         sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-        echo "deb [arch=arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2-testing/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
         sudo apt update
         sudo apt upgrade
-        sudo apt install -y ros-humble-ros-base
+        sudo apt install -y ros-jazzy-ros-base
         ```
 
         Confirm with "Y" when prompted to install new or updated packages.
@@ -165,8 +182,8 @@ to obtain latest linux image and boot firmware.
 
        ```bash
         mkdir -p ~/Downloads
-        wget https://github.com/Xilinx/ros-tsn-pubsub/releases/download/v0.1/ros-humble-xlnx-pubsub_0.1.0-0jammy_arm64.deb -P ~/Downloads/
-        sudo apt install -y ~/Downloads/ros-humble-xlnx-pubsub_0.1.0-0jammy_arm64.deb
+        wget https://github.com/Xilinx/ros-tsn-pubsub/releases/download/v0.1/ros-jazzy-xlnx-pubsub_0.1.0-0noble_arm64.deb -P ~/Downloads/
+        sudo apt install -y ~/Downloads/ros-humble-xlnx-pubsub_0.1.0-0noble_arm64.deb
        ```
 
     * Install network-manager related packages.
@@ -1176,6 +1193,32 @@ In this demo, the pmod-test application probes the temperature sensor connected 
         sudo xmutil unloadapp
         sudo xmutil loadapp kd240-motor-ctrl-qei
     ```
+* Often, devices files like `/dev/tty*` belong to a group e.g., dialout, tty or something similar. To access the device, your user must be a member of that group.
+    * Check what group /dev/tty* belongs to
+    ```bash
+        ubuntu@kria:~$ ls -l /dev/ttyULR0                               //KR260 command
+        crw-rw---- 1 root dialout 205, 187 Oct  6 23:15 /dev/ttyULR0
+
+        ubuntu@kria:~$ ls -l /dev/ttyPS0                                //KD240 command
+        crw-rw---- 1 root dialout 205, 187 Oct  6 23:15 /dev/ttyULR0
+     ```
+
+     * Check if you are a member of that group. In this case, your user should be a member of the group `dialout`
+     ```bash
+        ubuntu@kria:~$ groups ubuntu
+        ubuntu : ubuntu adm dialout cdrom sudo dip lxd
+     ```
+
+     * If your user is not a member of the group, add your user to the group
+     ```bash
+        ubuntu@kria:~$ sudo usermod -aG dialout ubuntu
+     ```
+
+     * Logout and log back in to the terminal
+     ```bash
+        ubuntu@kria:~$ exit
+     ```
+
 * Probe sensor via RS485 interface.
 
 * Execute binary:
