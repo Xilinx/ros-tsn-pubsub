@@ -4,7 +4,7 @@ ROS 2 Multi-Node Communications Via TSN
 
 
 
-.. include:: ../../../shared/somtoctree.txt
+.. include:: ../../../../shared/somtoctree.txt
 
 
 
@@ -70,6 +70,23 @@ Features
    :caption: Repository
   
    Software Repository <https://github.com/Xilinx/ros-tsn-pubsub>
+
+
+.. important::
+   Previous releases:
+
+   * `TSN 0.5 <https://pages.gitenterprise.xilinx.com/techdocs/SOM/kd240/ros2_multinode_communication_via_tsn/0_5/build/html/ros2_multinode_communication_via_tsn_landing.html>`_
+
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Other KD240 Applications
+   :hidden:
+
+   BIST <https://pages.gitenterprise.xilinx.com/techdocs/SOM/kd240/bist.html>
+   FOC Motor Control <https://pages.gitenterprise.xilinx.com/techdocs/SOM/kd240/foc_motor_ctrl.html.html>
+
 
 
 
