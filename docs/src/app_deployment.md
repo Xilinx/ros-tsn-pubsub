@@ -93,7 +93,7 @@ Testing was performed with the following artifacts:
 | ------------------------------------ | ------------------ |
 | Ubuntu                               | 24.04 Noble        |
 | Linux kernel                         | 6.8.0-1008-xilinx  |
-| Boot firmware                        | K24-BootFW-01.02   |
+| Boot firmware                        | K26-BootFW-01.02   |
 | xlnx-firmware-kr260-tsn-rs485pmod    | 1.0-0xlnx2         |
 
 #### KD240 Platform artifacts
@@ -164,7 +164,7 @@ Testing was performed with the following artifacts:
 
         > ***Note:*** Consider adding the above commands to ~/.bashrc to avoid executing on every new shell created.
 
-    * Install ROS 2 humble.
+    * Install ROS 2 jazzy.
 
         Refer to [ROS 2 Documentation](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html) for the installation steps. Here is the snippet of what is needed for this application:
 
@@ -295,7 +295,7 @@ KD240-KD240 Setup
 
 	* _Setup ros env on both KR260/KD240 Board 1 & Board2_
 
-		`source /opt/ros/humble/setup.sh`
+		`source /opt/ros/jazzy/setup.sh`
 
     > ***Note:*** Set MAC filters when using both TSN ethernet ports in the loopback mode. Refer to net_setup.sh script for setting MAC filters.
 
