@@ -92,7 +92,7 @@ Testing was performed with the following artifacts:
 | Components                           | Versions           |
 | ------------------------------------ | ------------------ |
 | Ubuntu                               | 24.04 Noble        |
-| Linux kernel                         | 6.8.0-1008-xilinx  |
+| Linux kernel                         | 6.8.0-1009-xilinx  |
 | Boot firmware                        | K26-BootFW-01.02   |
 | xlnx-firmware-kr260-tsn-rs485pmod    | 1.0-0xlnx2         |
 
@@ -101,7 +101,7 @@ Testing was performed with the following artifacts:
 | Components                           | Versions           |
 | ------------------------------------ | ------------------ |
 | Ubuntu                               | 24.04 Noble        |
-| Linux kernel                         | 6.8.0-1008-xilinx  |
+| Linux kernel                         | 6.8.0-1009-xilinx  |
 | Boot firmware                        | K24-BootFW-01.02   |
 | xlnx-firmware-kd240-motor-ctrl-qei   | 1.0-0xlnx2         |
 
@@ -1040,9 +1040,19 @@ A single KR260/KD240 board communicating with a PC workstation capable of TSN ne
 
  **Workstation Configuration**
 
-* The TSN networking interface (I210 interface) on the Linux host workstation  must be brought up and linuxptp needs to be installed to demonstrate PTP. To do this, on the Linux workstation, use `sudo ifconfig <i210 interface> up` command as shown in this example usage:
+* To find out the device name of the I210 interface on the Linux host workstation, use the `lshw` utility
 
-    `sudo ifconfig enp2s0 up `
+```
+ubuntu@kria:~$ sudo lshw -class network -short
+H/W path        Device          Class          Description
+==========================================================
+/0/100/1f.6     enp0s31f6       network        Ethernet Connection (3) I219-LM
+/0/101/0        ens4            network        I210 Gigabit Network Connection
+```
+
+* The TSN networking interface (I210 interface) on the Linux host workstation must be brought up and linuxptp needs to be installed to demonstrate PTP. To do this, on the Linux workstation, use `sudo ifconfig <i210 interface> up` command as shown in this example usage:
+
+    `sudo ifconfig ens4 up `
 
 * _Install ptpt4l on Workstation_
 
@@ -1076,11 +1086,35 @@ Using a text editor on the Linux TSN host workstation, create a new ptp4l config
 
 * _Start ptp4l on the Linux TSN host workstation and specify_
 
-    `sudo ptp4l -P -2 -H -i <i210 interface> -m -f ptp4l_master.conf >& ptplog & `
+    `sudo ptp4l -P -2 -H -i <i210 interface> -p <ptp_device> -m -f ptp4l_master.conf >& ptplog & `
 
-    `sudo ptp4l -P -2 -H -i enp2s0 -p /dev/ptp1 -m -f ptp4l_master.conf >& ptplog & `
+> ***Note:*** In cases where there is more than one PTP device available, specify which one is to be used with the -p argument.
 
-> ***Note:*** In cases where there is more than one PTP device available, specify which one is to be used with the -p argument as shown in the following example usage:
+* To find out the correct PTP device on Linux TSN Host Workstation, use the ethtool utility `sudo ethtool -T <i210_interface>`
+
+```
+#Example
+ubuntu@kria:~$ sudo ethtool -T ens4
+Time stamping parameters for ens4:
+Capabilities:
+        hardware-transmit     (SOF_TIMESTAMPING_TX_HARDWARE)
+        software-transmit     (SOF_TIMESTAMPING_TX_SOFTWARE)
+        hardware-receive      (SOF_TIMESTAMPING_RX_HARDWARE)
+        software-receive      (SOF_TIMESTAMPING_RX_SOFTWARE)
+        software-system-clock (SOF_TIMESTAMPING_SOFTWARE)
+        hardware-raw-clock    (SOF_TIMESTAMPING_RAW_HARDWARE)
+PTP Hardware Clock: 0
+Hardware Transmit Timestamp Modes:
+        off                   (HWTSTAMP_TX_OFF)
+        on                    (HWTSTAMP_TX_ON)
+Hardware Receive Filter Modes:
+        none                  (HWTSTAMP_FILTER_NONE)
+        all                   (HWTSTAMP_FILTER_ALL)
+```
+
+* From the output above, the PTP device for the I210 interface is /dev/ptp0 and the example command on Linux TSN Workstation will be
+
+    `sudo ptp4l -P -2 -H -i ens4 -p /dev/ptp0 -m -f ptp4l_master.conf >& ptplog & `
 
 * _Start ptp on KR260/KD240 in slave clock mode_
     `source /usr/bin/start_ptp.sh -s `
