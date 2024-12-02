@@ -79,7 +79,7 @@ Documentation:
 
 * Two Digilent Pmod CAN devices - Optional for KR260 CAN testing only (Sold Separately [here](https://digilent.com/reference/pmod/pmodcan/start))
 
-* Wireshark tools installed on host machine (Ubuntu 20.04 Linux used for documentation)
+* Wireshark tools installed on host machine (Ubuntu 22.04 Linux used for documentation)
 
 **NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well
 
@@ -107,9 +107,9 @@ Testing was performed with the following artifacts:
 
 #### Application artifacts
 
-| Application Package            | Ubuntu versions                   |
+| Application Package            | Ubuntu package versions           |
 | ------------------------------ | --------------------------------- |
-| xlnx-tsn-utils                 | 0.3-0xlnx2                        |
+| xlnx-tsn-utils                 | 0.4.1-0xlnx1                      |
 | xlnx-app-kr260-tsn-examples    | 0.2-0xlnx3                        |
 | xlnx-app-kr260-pmod-rs485-test | 0.2-0xlnx1                        |
 | ros-humble-xlnx-pubsub         | 0.1.0-0noble                      |
@@ -121,9 +121,9 @@ Testing was performed with the following artifacts:
 | Repository                                                                               | Release Tag                                                                                                  |
 |----------------------------------------------------------------------------------------- |------------------------------------------------------------------------------------------------------------- |
 | [Kria SOM Vitis Platforms and Overlays](https://github.com/Xilinx/kria-vitis-platforms)  | [v1.0](https://github.com/Xilinx/kria-vitis-platforms/releases/tag/v1.0)                                     |
-| [Xilinx TSN Utils](https://github.com/Xilinx/tsn-utils)                                  | [v0.3](https://github.com/Xilinx/tsn-utils/releases/tag/v0.3)                                                |
+| [Xilinx TSN Utils](https://github.com/Xilinx/tsn-utils)                                  | [v0.4](https://github.com/Xilinx/tsn-utils/releases/tag/v0.4)                                              |
 | [Xilinx TSN Talker-Listener](https://github.com/Xilinx/tsn-talker-listener)              | [v0.2](https://github.com/Xilinx/tsn-talker-listener/releases/tag/v0.2)                                      |
-| [Xilinx PMOD RS485 Test](https://github.com/Xilinx/pmod-rs485-test)                      | [0.2](https://github.com/Xilinx/pmod-rs485-test/releases/tag/v0.2)                                            |
+| [Xilinx PMOD RS485 Test](https://github.com/Xilinx/pmod-rs485-test)                      | [v0.2](https://github.com/Xilinx/pmod-rs485-test/releases/tag/v0.2)                                           |
 | [Xilinx ROS TSN PubSub](https://github.com/Xilinx/ros-tsn-pubsub)                        | [v0.1.1](https://github.com/Xilinx/ros-tsn-pubsub/releases/tag/v0.1.1)                                       |
 
 ### Initial Setup
@@ -266,7 +266,7 @@ KD240-KD240 Setup:
 
 
 KD240-KD240 Setup
-  
+
 ![2board-kd240](media/KD240-KD240.jpg)
 
 #### Run TSN-ROS Out of Box Applications
@@ -468,16 +468,9 @@ Wireshark trace shows a 70% Scheduled traffic 30 % Best Effort traffic distribut
 
 ### Network Configuration 2 : Network Manager(CNC) and Two KR260/KD240 Boards
 
-**NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well.
-Before running this tutorial please make sure that your `curl --version` package on the CNC is 
-`7.68.0`. Please follow below steps if version does not match:
-```bash
-    sudo apt-cache policy curl
-    sudo apt remove curl
-    sudo apt install -y --no-install-recommends curl=7.68.0-1ubuntu2.18
-```
-
 This configuration requires either two KR260/KD240 units and one KV260/KR260/KD240 unit(CNC) or two KR260/KD240 units and one Linux Running Machine(CNC). The following images represent these configurations:
+
+**NOTE**: This tutorial can be run with one KD240 and one KR260 configuration as well.
 
 #### Two KR260/KD240 and one KV260/KR260/KD240(CNC):
 
@@ -1309,7 +1302,7 @@ using jumper wires as shown below:
 - Connect CANL on J19 (KR260 board 1) to CANL on J18 (KD240 board 2)
 
 > ***Note:*** PMOD CAN device is required for KR260 only. For KD240, the PS CAN port J18 is
-used. 
+used.
 
 ![KR-KD-PMODCAN](media/KR-KD-PMODCAN.png)
 
@@ -1324,7 +1317,7 @@ capability provided by the application to support CAN communication.
 * Install the necessary packages on both devices:
     ```bash
 	sudo apt update
-	sudo apt install can-utils   
+	sudo apt install can-utils
     ```
 
 * Ensure to load the TSN accelerator/firmware (refer to step-7 'dynamically load the application
